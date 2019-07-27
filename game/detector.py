@@ -90,3 +90,27 @@ class Detector(object):
             if cards[i] == 3:
                 return True
         return False
+
+
+    def straight(self,cards):
+        """
+        Five cards in order
+        :returns: TODO
+
+        """
+        pack = []
+        cards = self.sortCards(cards)
+        for index,card in enumerate(cards):
+            if len(pack) == 4:
+                pack.append(card)
+                return pack            
+            control = self.cardsOrder.index(card[0]) - self.cardsOrder.index(cards[index+1][0])
+            if control == 1:        
+                pack.append(card)
+            elif control == 0:
+                continue
+            else:
+                return False
+
+
+
