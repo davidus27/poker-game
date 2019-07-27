@@ -159,3 +159,32 @@ class Detector(object):
             return True
         return False
 
+
+    def straightFlush(self,cards):
+        """
+        Straight and flush
+        :returns: TODO
+
+        """
+        # not functioning properly:  <25-07-19, dave> #
+        flush = self.flush(cards)
+        straight = self.straight(cards)
+        if straight == flush:
+            return straight
+        return False
+
+    def royalFlush(self,cards):
+        """
+        The highest cards on hand. 
+        all of the same color: 10,jack,queen, king, ace 
+        :returns: TODO
+
+        """
+        royal = [10, "Jack", "Queen", "King", "Ace"]
+        flush = self.flush(cards)
+        if flush:    
+            for i in flush:
+                if i[0] not in royal:
+                    return False
+            return True
+        return False
