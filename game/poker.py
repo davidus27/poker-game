@@ -19,13 +19,19 @@ class Game(object):
         self.dealer = dealer.Dealer(self.info.numPlayers)
 
 
+    def createPlayers(self):
+        player = self.dealer.firstPlayer(self.info.name, self.info.money)
+        self.dealer.createPlayers(player)
+        return self
+
+
 def main():
     """ 
     Work to create game
     """
 
     game = Game()
-
+    game.createPlayers()
 
 
 

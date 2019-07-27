@@ -76,3 +76,23 @@ class Dealer(object):
         """
         return self.tableCards + player.hand
 
+
+
+    def createPlayers(self, user):
+        if isinstance(user , type(player.Player())):
+            self.players.append(user) #creates player as the first one
+            for i in range(1, self.numPlayers):
+                self.players.append(player.EasyBot())
+                self.players[i].name += str(i)
+        else: 
+            print("Your input is not instance of Player")
+        
+        return self
+
+
+    def firstPlayer(self, name, money):
+        """
+        Creating first player
+
+        """
+        return player.Player(name, money)
