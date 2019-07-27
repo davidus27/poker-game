@@ -61,3 +61,32 @@ class Detector(object):
         if count == 2:
             return True
         return False
+
+
+
+    def threeOfKind(self, cards):
+        """
+        Finds Three of a kind (Three cards with same value)
+        :cards: dictionary of hole and community cards
+        :returns: boolean
+
+        """
+        for i in cards:
+            if cards[i] == 2:
+                return True
+
+        return False
+      
+
+    def fourOfKind(self, cards):
+        """
+        Finds Four of a kind (four cards with same value)
+
+        :cards: dictionary
+        :returns: boolean
+
+        """
+        for i in cards:
+            if cards[i] == 3:
+                return True
+        return False
