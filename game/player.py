@@ -14,3 +14,33 @@ class Player(object):
         self.hand = []
 
 
+    def options(self, action):
+        """
+        Gives all options to the player
+        :action: input of the player
+        :returns: used function
+
+        """
+        pass
+
+
+class EasyBot(Player):
+
+    """
+    Easy to compete player
+    Selects randomly between his options
+    """
+
+    def __init__(self):
+       """TODO: to be defined1. """
+       Player.__init__(self)
+
+
+    def options(self, action):
+        """
+        Gives all options to the player
+        :action: input of the player
+        :returns: used function
+
+        """
+        pass
