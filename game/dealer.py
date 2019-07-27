@@ -34,3 +34,10 @@ class Dealer(object):
             for number in numbers:
                 self.deck.append((number,color))
         return self
+
+    def shuffle(self):
+        for i in range(len(self.deck)-1 , 0, -1):
+            rand = random.randint(0,i)
+            self.deck[i], self.deck[rand]= self.deck[rand], self.deck[i]
+        return self
+
