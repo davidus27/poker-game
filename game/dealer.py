@@ -57,7 +57,7 @@ class Dealer(object):
         return self 
 
 
-       def drawTable(self):
+    def drawTable(self):
         """
         Draw a card on table
         :returns: TODO
@@ -66,7 +66,7 @@ class Dealer(object):
         self.tableCards.append(self.drawCard())
         return self
 
-        def listCards(self, player):
+    def listCards(self, player):
         """
         Creates the list of cards for specific player
 
@@ -75,3 +75,4 @@ class Dealer(object):
 
         """
         return self.tableCards + player.hand
+

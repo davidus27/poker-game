@@ -18,3 +18,18 @@ class Game(object):
         self.info = printouts.PrintOuts()
         self.dealer = dealer.Dealer(self.info.numPlayers)
 
+
+def main():
+    """ 
+    Work to create game
+    """
+
+    game = Game()
+
+
+
+
+
+if __name__ == "__main__":
+    main()
+
