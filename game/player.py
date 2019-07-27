@@ -5,7 +5,6 @@ Github:https://github.com/davidus27
 Description:Player and variations of bots.
 """
 from random import random
-from printouts import options
 
 class Player(object):
     def __init__(self, name = "Player", money = 500.0):
