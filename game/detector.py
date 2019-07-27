@@ -114,3 +114,13 @@ class Detector(object):
 
 
 
+    def sortCards(self, cards):
+        """
+        Sort cards from highest based on values
+
+        :cards: TODO
+        :returns: TODO
+
+        """
+        return sorted(cards, key = lambda a: (self.cardsOrder.index(a[0]), a[1]), reverse=True)
+    
