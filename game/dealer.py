@@ -56,3 +56,22 @@ class Dealer(object):
             i.hand.append(self.drawCard())
         return self 
 
+
+       def drawTable(self):
+        """
+        Draw a card on table
+        :returns: TODO
+
+        """
+        self.tableCards.append(self.drawCard())
+        return self
+
+        def listCards(self, player):
+        """
+        Creates the list of cards for specific player
+
+        :player: object Player()
+        :returns: list of cards on table and hand of specific player
+
+        """
+        return self.tableCards + player.hand
