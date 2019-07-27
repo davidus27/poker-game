@@ -23,3 +23,14 @@ class Dealer(object):
         self.numPlayers = numPlayers
         self.pot = 0
 
+    def buildDeck(self):
+        """
+        Creates list of cards.
+        Individual cards are tuples with format: (number,color)
+        """
+        colors = ["Spades" , "Clubs", "Diamonds", "Hearts"]
+        numbers = [2, 3, 4, 5, 6 ,7 ,8 , 9 ,10,"Jack", "Queen","King", "Ace"]
+        for color in colors:
+            for number in numbers:
+                self.deck.append((number,color))
+        return self
