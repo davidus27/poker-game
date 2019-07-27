@@ -123,4 +123,23 @@ class Detector(object):
 
         """
         return sorted(cards, key = lambda a: (self.cardsOrder.index(a[0]), a[1]), reverse=True)
-    
+   
+    def flush(self,cards):
+        """
+        Five cards of the same suit
+        :returns: TODO
+
+        """
+        #it will lookup the biggest flush in cards
+        cards = self.sortCards(cards)
+        
+        for i in self.suits:
+            pack=[]
+            for j in cards:
+                if j[1] is i:
+                    pack.append(j)
+                if len(pack) >= 5:
+                    return pack
+        return False
+
+
