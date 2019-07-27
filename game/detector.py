@@ -52,44 +52,42 @@ class Detector(object):
         Creates histogram of hole and community cards
 
         :cards: TODO
-        :returns: dictionary of used cards 
+        :returns: histogramictionary of used cards 
 
         """ 
-        d = {}
+        histogram = {}
         for i in cards:
-            if i[0] not in d:
-                d[i[0]] =0
+            if i[0] not in histogram:
+                histogram[i[0]] =0
             else:
-                d[i[0]] +=1
+                histogram[i[0]] +=1
 
-        return d
+        return histogram
 
 
-    def pair(self, cards):
+    def pair(self, histogram):
         """
         Checks if the dictionary has ONE pair
         Calculates cardValue of hand
-        :returns: value of hand
+        :returns: value of hanhistogram
         """
-        d = self.createHistogram(cards)
-        pack = []
-        for i in d:
-            if d[i] == 1:
-                for j in cards:
-                    if j[0] == i:
-                        pack.append(j)
-                return pack
+        for i in histogram:
+            if histogram[i] == 1:
+                return True
+
         return False
+
+
     
-    def twoPairs(self,cards):
+    def twoPairs(self,histogram):
         """
         Two different pairs
         :returns: TODO
 
         """
         count = 0
-        for i in cards:
-            if cards[i] == 1:
+        for i in histogram:
+            if histogram[i] == 1:
                 count += 1
         if count == 2:
             return True
@@ -97,35 +95,35 @@ class Detector(object):
 
 
 
-    def threeOfKind(self, cards):
+    def threeOfKind(self, histogram):
         """
-        Finds Three of a kind (Three cards with same value)
-        :cards: dictionary of hole and community cards
+        Finds Three of a kind (Three histogram with same value)
+        :histogram: dictionary of hole and community histogram
         :returns: boolean
 
         """
-        for i in cards:
-            if cards[i] == 2:
+        for i in histogram:
+            if histogram[i] == 2:
                 return True
 
         return False
       
 
-    def fourOfKind(self, cards):
+    def fourOfKind(self, histogram):
         """
-        Finds Four of a kind (four cards with same value)
+        Finds Four of a kind (four histogram with same value)
 
-        :cards: dictionary
+        :histogram: dictionary
         :returns: boolean
 
         """
-        for i in cards:
-            if cards[i] == 3:
+        for i in histogram:
+            if histogram[i] == 3:
                 return True
         return False
 
 
-    def straight(self,cards):
+    def straight(self, cards):
         """
         Five cards in order
         :returns: TODO
@@ -176,17 +174,17 @@ class Detector(object):
         return False
 
 
-    def fullHouse(self,cards):
+    def fullHouse(self,histogram):
         """
         A pair and 3 of a kind
         :returns: TODO
 
         """
         x,y = 0,0
-        for i in cards:
-            if cards[i] == 1:
+        for i in histogram:
+            if histogram[i] == 1:
                 x += 1
-            elif cards[i] == 2:
+            elif histogram[i] == 2:
                 y += 1
         if x == 1 and y ==1:
             return True
