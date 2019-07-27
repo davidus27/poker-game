@@ -41,3 +41,18 @@ class Dealer(object):
             self.deck[i], self.deck[rand]= self.deck[rand], self.deck[i]
         return self
 
+    
+    def drawCard(self):
+        return self.deck.pop()
+
+            
+    def dealCard(self):
+        """
+        Deals cards to everyone
+        :returns: self
+
+        """
+        for i in self.players:
+            i.hand.append(self.drawCard())
+        return self 
+
