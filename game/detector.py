@@ -143,3 +143,19 @@ class Detector(object):
         return False
 
 
+    def fullHouse(self,cards):
+        """
+        A pair and 3 of a kind
+        :returns: TODO
+
+        """
+        x,y = 0,0
+        for i in cards:
+            if cards[i] == 1:
+                x += 1
+            elif cards[i] == 2:
+                y += 1
+        if x == 1 and y ==1:
+            return True
+        return False
+
