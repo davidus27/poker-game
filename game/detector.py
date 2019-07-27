@@ -30,3 +30,21 @@ class Detector(object):
                 d[i[0]] +=1
 
         return d
+
+
+   def pair(self, cards):
+        """
+        Checks if the dictionary has ONE pair
+        Calculates cardValue of hand
+        :returns: value of hand
+        """
+        d = self.createHistogram(cards)
+        pack = []
+        for i in d:
+            if d[i] == 1:
+                for j in cards:
+                    if j[0] == i:
+                        pack.append(j)
+                return pack
+        return False
+    
