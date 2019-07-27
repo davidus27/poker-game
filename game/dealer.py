@@ -23,6 +23,9 @@ class Dealer(object):
         self.numPlayers = numPlayers
         self.pot = 0
 
+        self.buildDeck()
+        self.shuffle()
+
     def buildDeck(self):
         """
         Creates list of cards.

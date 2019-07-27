@@ -25,6 +25,19 @@ class Game(object):
         return self
 
 
+
+    def giveCards(self):
+        """
+        gives cards.
+        :returns: TODO
+
+        """
+        self.dealer.dealCard()
+        self.dealer.dealCard()
+        self.dealer.drawTable()
+        self.dealer.drawTable()
+        self.dealer.drawTable()
+
 def main():
     """ 
     Work to create game
@@ -32,8 +45,10 @@ def main():
 
     game = Game()
     game.createPlayers()
+    game.giveCards()
 
-
+    game.dealer.drawTable()
+    game.dealer.drawTable()
 
 
 if __name__ == "__main__":
