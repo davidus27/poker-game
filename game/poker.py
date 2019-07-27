@@ -6,7 +6,9 @@ Description: Game is the main Object implementing all the necessary tools for pl
                         RUNS THE WHOLE PROGRAM!
 """
 import dealer
-import printouts 
+import printouts
+
+import detector
 
 class Game(object):
     """
@@ -49,6 +51,29 @@ def main():
 
     game.dealer.drawTable()
     game.dealer.drawTable()
+
+
+    det = detector.Detector()
+       
+    for i in game.dealer.players:
+        #cards = game.dealer.listCards(i)
+        cards = det.sortCards(game.dealer.listCards(i))
+        histogram = det.createHistogram(cards)
+        
+        print(i.name)
+        print(cards)
+        print("pair: ", det.pair(histogram))
+        print("two pairs: ", det.twoPairs(histogram))
+        print("Three of a kind:" , det.threeOfKind(histogram))
+        print("Four of a kind:" , det.fourOfKind(histogram))
+        print("Straight: ", det.straight(cards))
+        print("Flush: ", det.flush(cards))
+        print("Full house: ", det.fullHouse(histogram))
+        print("StraightFlush: ", det.straightFlush(cards))
+        print("RoyalFlush: ", det.royalFlush(cards))
+        print("Overall Value: ", game.dealer.findHandValue(i))
+        print()
+
 
 
 if __name__ == "__main__":

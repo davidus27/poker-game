@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# vim: set fileencoding=utf-8 :
 """
 File: detector.py
 Author: dave
@@ -32,7 +34,7 @@ class Detector(object):
         return d
 
 
-   def pair(self, cards):
+    def pair(self, cards):
         """
         Checks if the dictionary has ONE pair
         Calculates cardValue of hand
