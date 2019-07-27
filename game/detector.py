@@ -12,3 +12,21 @@ class Detector(object):
 
     def __init__(self):
         pass
+
+
+    def createHistogram(self, cards):
+        """
+        Creates histogram of hole and community cards
+
+        :cards: TODO
+        :returns: dictionary of used cards 
+
+        """ 
+        d = {}
+        for i in cards:
+            if i[0] not in d:
+                d[i[0]] =0
+            else:
+                d[i[0]] +=1
+
+        return d
