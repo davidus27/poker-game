@@ -48,3 +48,16 @@ class Detector(object):
                 return pack
         return False
     
+    def twoPairs(self,cards):
+        """
+        Two different pairs
+        :returns: TODO
+
+        """
+        count = 0
+        for i in cards:
+            if cards[i] == 1:
+                count += 1
+        if count == 2:
+            return True
+        return False
