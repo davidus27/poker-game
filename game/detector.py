@@ -16,6 +16,37 @@ class Detector(object):
         pass
 
 
+    """
+    All possible hand values checkers:
+
+        0) Highcard: Simple value of the card.
+
+        1) Pair: Two cards with same value.
+
+        2) Two pairs: Two different pairs.
+        
+        3) Three of a Kind: Three cards with the same value
+        
+        4) Straight: Sequence of five cards in increasing value (Ace can precede two and follow up King)
+        
+        5) Flush: Five cards of the same suit
+        
+        6) Full House: Combination of three of a kind and a pair
+        
+        7) Four of a kind: Four cards of the same value
+        
+        8) Straight flush: Straight of the same suit
+        
+        9) Royal Flush: Straight flush from Ten to Ace
+
+
+    The value of hand will get number based on the sequence above
+        (Pair will get 1, Straight will get 4 and so on) 
+    
+    Highcard will enumerate decimal places so if two players will have same hand the higher cards will win.
+
+    """
+
     def createHistogram(self, cards):
         """
         Creates histogram of hole and community cards
