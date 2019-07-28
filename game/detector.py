@@ -238,3 +238,29 @@ def royalFlush(cards):
                 return False
         return flushCards
     return False
+
+
+
+def findHandValue(cards):
+    """
+    Goes through the list of possible hands to find best one from top to the bottom
+
+    :player: TODO
+    :returns: float/int hand value of the player
+
+    """
+    histogram = createHistogram(cards)
+    options = [royalFlush(cards),
+               straightFlush(cards),
+               fourOfKind(histogram, cards),
+               fullHouse(histogram, cards),
+               flush(cards),
+               threeOfKind(histogram, cards),
+               twoPairs(histogram, cards),
+               pair(histogram, cards),]
+    
+    for index,option in enumerate(options):
+        if option:
+            return (8 - index) + highCard(option)
+    return d.highCard(cards)
+

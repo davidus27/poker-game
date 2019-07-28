@@ -11,7 +11,7 @@ Description: We need to create a "Dealer" for a game so we can
 
 
 import player
-import detector
+from detector import findHandValue
 import random
 
 
@@ -94,35 +94,7 @@ class Dealer(object):
                self.addPlayer(player.EasyBot())
                self.players[i].name +=str(i)
         return self
-
-
     
-    def findHandValue(self, player):
-        """
-        Goes through the list of possible hands to find best one from top to the bottom
-
-        :player: TODO
-        :returns: float/int hand value of the player
-
-        """
-        cards = detector.sortCards(self.listCards(player))
-        
-        histogram = detector.createHistogram(cards)
-        options = [detector.royalFlush(cards),
-                   detector.straightFlush(cards),
-                   detector.fourOfKind(histogram, cards),
-                   detector.fullHouse(histogram, cards),
-                   detector.flush(cards),
-                   detector.threeOfKind(histogram, cards),
-                   detector.twoPairs(histogram, cards),
-                   detector.pair(histogram, cards),]
-        
-        for index,option in enumerate(options):
-            if option:
-                return (8 - index) + detector.highCard(option)
-        return d.highCard(cards)
-
-
     def chooseWinner(self):
         """
         Decides who won the round
@@ -131,7 +103,7 @@ class Dealer(object):
         """
         handValues = []
         for player in self.players:
-            handValues.append(self.findHandValue(player))
+            handValues.append(findHandValue(self.listCards(player)))
                              
         print(handValues)
         maxValue = 0
