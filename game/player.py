@@ -26,7 +26,47 @@ class Player(object):
        else:
            pass
 
+   def raiseBet(self): #python uses keyword raise :/ 
+       """
+       Method for raising bets
 
+       :diff: the amount to call
+       :raising: amount to 
+       """
+       pass
+
+    def checkBet(self):
+       """
+       Checks only if diff is zero
+
+       :diff: difference between bets
+       :returns: True/False based on if you can check or not
+
+       """
+       return bool(diff)
+
+    def fold(self):
+       """
+       :returns: self
+
+       """
+       self.hands = []
+       self.end()
+       return self
+
+
+    def allIn(self):
+       """
+       Gives all money to the pot
+
+       :currentBet: Money on pot
+       :returns: currentBet with all player's money
+
+       """
+       #currentBet += self.money
+       money = self.money
+       self.money = 0.0
+       return money
 
     def options(self, action):
         """
