@@ -51,6 +51,7 @@ class Game(object):
         self.dealer.drawTable()
         self.dealer.drawTable()
 
+import time
 def main():
     """ 
     Work to create game
@@ -58,36 +59,23 @@ def main():
 
     game = Game()
     game.askQuestions()
+    
 
     game.createPlayers()
     game.giveCards()
-
     game.dealer.drawTable()
     game.dealer.drawTable()
 
 
     det = detector.Detector()
-       
+    print(game.dealer.tableCards) 
     for i in game.dealer.players:
-        #cards = game.dealer.listCards(i)
         cards = det.sortCards(game.dealer.listCards(i))
         histogram = det.createHistogram(cards)
-        
         print(i.name)
-        print(cards)
-        print("pair: ", det.pair(histogram, cards))
-        print("two pairs: ", det.twoPairs(histogram, cards))
-        print("Three of a kind:" , det.threeOfKind(histogram, cards))
-        print("Four of a kind:" , det.fourOfKind(histogram, cards))
-        print("Straight: ", det.straight(cards))
-        print("Flush: ", det.flush(cards))
-        print("Full house: ", det.fullHouse(histogram, cards))
-        print("StraightFlush: ", det.straightFlush(cards))
-        print("RoyalFlush: ", det.royalFlush(cards))
+        print(i.hand)
         print("Final Countdown: ", game.dealer.findHandValue(i))
         print()
-
-
 
 if __name__ == "__main__":
     main()

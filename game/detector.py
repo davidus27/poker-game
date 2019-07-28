@@ -240,5 +240,5 @@ class Detector(object):
             for i in flush:
                 if i[0] not in royal:
                     return False
-            return True
+            return flush
         return False

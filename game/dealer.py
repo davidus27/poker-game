@@ -107,6 +107,7 @@ class Dealer(object):
         """
         d = detector.Detector()
         cards = d.sortCards(self.listCards(player))
+        
         histogram = d.createHistogram(cards)
         options = [d.royalFlush(cards),
                    d.straightFlush(cards),
@@ -119,5 +120,6 @@ class Dealer(object):
         
         for index,option in enumerate(options):
             if option:
-                return 8 - index + d.highCard(option)
+                print(d.royalFlush(cards))
+                return (8 - index) + d.highCard(option)
         return d.highCard(cards)
