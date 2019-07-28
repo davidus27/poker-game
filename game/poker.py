@@ -85,7 +85,6 @@ def main():
         print("StraightFlush: ", det.straightFlush(cards))
         print("RoyalFlush: ", det.royalFlush(cards))
         print("Final Countdown: ", game.dealer.findHandValue(i))
-        print("High card: ", det.highCard(cards))
         print()
 
 

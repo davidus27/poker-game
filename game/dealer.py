@@ -119,6 +119,5 @@ class Dealer(object):
         
         for index,option in enumerate(options):
             if option:
-                return 8 - index #+ d.highCard(option)
-        return False
-        #return d.highCard(cards)
+                return 8 - index + d.highCard(option)
+        return d.highCard(cards)
