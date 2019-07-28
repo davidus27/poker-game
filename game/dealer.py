@@ -89,8 +89,8 @@ class Dealer(object):
         """
         Create individual player and his opponents based on difficulty
         """
-        self.addPlayer(player.Player())
-        for i in range(self.numPlayers):
+        self.addPlayer(player.Player(name,money))
+        for i in range(1,self.numPlayers+1):
             if difficulty == "easy":
                self.addPlayer(player.EasyBot())
                self.players[i].name +=str(i)
