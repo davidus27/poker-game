@@ -21,6 +21,7 @@ class Game(object):
         self.dealer = dealer.Dealer(self.info.numPlayers)
 
 
+
     def createPlayers(self):
         player = self.dealer.firstPlayer(self.info.name, self.info.money)
         self.dealer.createPlayers(player)
@@ -46,6 +47,7 @@ def main():
     """
 
     game = Game()
+
     game.createPlayers()
     game.giveCards()
 
@@ -62,13 +64,13 @@ def main():
         
         print(i.name)
         print(cards)
-        print("pair: ", det.pair(histogram))
-        print("two pairs: ", det.twoPairs(histogram))
-        print("Three of a kind:" , det.threeOfKind(histogram))
-        print("Four of a kind:" , det.fourOfKind(histogram))
+        print("pair: ", det.pair(histogram, cards))
+        print("two pairs: ", det.twoPairs(histogram, cards))
+        print("Three of a kind:" , det.threeOfKind(histogram, cards))
+        print("Four of a kind:" , det.fourOfKind(histogram, cards))
         print("Straight: ", det.straight(cards))
         print("Flush: ", det.flush(cards))
-        print("Full house: ", det.fullHouse(histogram))
+        print("Full house: ", det.fullHouse(histogram, cards))
         print("StraightFlush: ", det.straightFlush(cards))
         print("RoyalFlush: ", det.royalFlush(cards))
         print()
