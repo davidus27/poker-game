@@ -110,9 +110,9 @@ class Dealer(object):
         histogram = d.createHistogram(cards)
         options = [d.royalFlush(cards),
                    d.straightFlush(cards),
+                   d.fourOfKind(histogram, cards),
                    d.fullHouse(histogram, cards),
                    d.flush(cards),
-                   d.fourOfKind(histogram, cards),
                    d.threeOfKind(histogram, cards),
                    d.twoPairs(histogram, cards),
                    d.pair(histogram, cards),]
