@@ -104,4 +104,4 @@ venv.bak/
 .mypy_cache/
 
 # swap backup file
-.swp
+.py.swp
