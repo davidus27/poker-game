@@ -16,11 +16,10 @@ import random
 
 
 class Dealer(object):
-    def __init__(self,numPlayers):
+    def __init__(self):
         self.deck = []
         self.players = []
         self.tableCards = []
-        self.numPlayers = numPlayers
         self.pot = 0
 
         self.buildDeck()
@@ -85,12 +84,12 @@ class Dealer(object):
         return self
 
 
-    def createPlayers(self,name,money, difficulty="easy"):
+    def createPlayers(self,numPlayers , name,money, difficulty="easy"):
         """
         Create individual player and his opponents based on difficulty
         """
         self.addPlayer(player.Player(name,money))
-        for i in range(1,self.numPlayers+1):
+        for i in range(1,numPlayers+1):
             if difficulty == "easy":
                self.addPlayer(player.EasyBot())
                self.players[i].name +=str(i)

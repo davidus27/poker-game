@@ -14,16 +14,20 @@ class Game(object):
     """
     Creates players based on inputs on call.
     """
-    def __init__(self):
-        self.info = printouts.PrintOuts()
-        self.dealer = dealer.Dealer(self.info.numPlayers)
+    def __init__(self, name = "Player0", money = 500.0, difficulty ="easy", numPlayers = 2):
+        self.name = name
+        self.money = money
+        self.difficulty = difficulty
+        self.numPlayers = numPlayers
+        self.dealer = dealer.Dealer()
 
 
 
     def createPlayers(self):
-        self.dealer.createPlayers(name = self.info.name,
-                                  money = self.info.money, 
-                                  difficulty =self.info.difficulty, )
+        self.dealer.createPlayers(numPlayers = self.numPlayers,
+                                name = self.name ,
+                                money = self.money,
+                                difficulty = self.difficulty, )
         return self
 
     def askQuestions(self):
@@ -32,9 +36,8 @@ class Game(object):
         :returns: TODO
 
         """
-        self.info.nameQuest()
-        self.info.numQuest()
-
+        self.name = printouts.nameQuest()
+        self.numPlayers = printouts.numQuest()
 
     def giveCards(self):
         """
