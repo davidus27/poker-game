@@ -120,6 +120,29 @@ class Dealer(object):
         
         for index,option in enumerate(options):
             if option:
-                print(d.royalFlush(cards))
                 return (8 - index) + d.highCard(option)
         return d.highCard(cards)
+
+
+    def chooseWinner(self):
+        """
+        Decides who won the round
+        :returns: TODO
+
+        """
+        handValues = []
+        for player in self.players:
+            handValues.append(self.findHandValue(player))
+                             
+        print(handValues)
+        maxValue = 0
+        for value in handValues:
+            if value > maxValue:
+                maxValue = value
+        maxValues = []
+        print(maxValue)
+        for value in handValues:
+            if value == maxValue:
+                maxValues.append(handValues.index(maxValue)
+        return maxValues
+

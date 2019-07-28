@@ -74,7 +74,6 @@ def main():
 
 
 
-
     det = detector.Detector()
     print(game.dealer.tableCards) 
     for i in game.dealer.players:
@@ -85,6 +84,7 @@ def main():
         print("Final Countdown: ", game.dealer.findHandValue(i))
         print()
 
+    print(game.dealer.chooseWinner())
 
 if __name__ == "__main__":
     main()
