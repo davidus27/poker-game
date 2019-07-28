@@ -117,4 +117,27 @@ class EasyBot(Player):
         :returns: used function
 
         """
-        pass
+        options = {1: self.checkBet ,
+                    2: self.callBet , 
+                    3: self.raiseBet , 
+                    4: self.fold , 
+                    5: self.allIn,
+                    }
+
+        x = random()
+        if x <= 0.05:
+            action = 4
+
+        elif x <= 0.45:
+            action = 1
+
+        elif x <= 0.85:
+            action = 2
+
+        elif x <= 0.995:
+            action = 3
+
+        elif x <= 1.0:
+            action = 5
+        return options[action]()
+
