@@ -72,18 +72,13 @@ def main():
     game.dealer.drawTable()
     game.dealer.drawTable()
 
-
-
-    det = detector.Detector()
     print(game.dealer.tableCards) 
     for i in game.dealer.players:
-        cards = det.sortCards(game.dealer.listCards(i))
-        histogram = det.createHistogram(cards)
+        cards = detector.sortCards(game.dealer.listCards(i))
+        histogram = detector.createHistogram(cards)
         print(i.name)
         print(i.hand)
-        print("Final Countdown: ", game.dealer.findHandValue(i))
         print()
-
     print(game.dealer.chooseWinner())
 
 if __name__ == "__main__":

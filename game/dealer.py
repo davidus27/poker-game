@@ -105,22 +105,21 @@ class Dealer(object):
         :returns: float/int hand value of the player
 
         """
-        d = detector.Detector()
-        cards = d.sortCards(self.listCards(player))
+        cards = detector.sortCards(self.listCards(player))
         
-        histogram = d.createHistogram(cards)
-        options = [d.royalFlush(cards),
-                   d.straightFlush(cards),
-                   d.fourOfKind(histogram, cards),
-                   d.fullHouse(histogram, cards),
-                   d.flush(cards),
-                   d.threeOfKind(histogram, cards),
-                   d.twoPairs(histogram, cards),
-                   d.pair(histogram, cards),]
+        histogram = detector.createHistogram(cards)
+        options = [detector.royalFlush(cards),
+                   detector.straightFlush(cards),
+                   detector.fourOfKind(histogram, cards),
+                   detector.fullHouse(histogram, cards),
+                   detector.flush(cards),
+                   detector.threeOfKind(histogram, cards),
+                   detector.twoPairs(histogram, cards),
+                   detector.pair(histogram, cards),]
         
         for index,option in enumerate(options):
             if option:
-                return (8 - index) + d.highCard(option)
+                return (8 - index) + detector.highCard(option)
         return d.highCard(cards)
 
 
@@ -143,6 +142,5 @@ class Dealer(object):
         print(maxValue)
         for value in handValues:
             if value == maxValue:
-                maxValues.append(handValues.index(maxValue)
+                maxValues.append(handValues.index(maxValue))
         return maxValues
-
