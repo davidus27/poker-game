@@ -26,7 +26,7 @@ class Player(object):
        else:
            pass
 
-   def raiseBet(self): #python uses keyword raise :/ 
+    def raiseBet(self):
        """
        Method for raising bets
 
@@ -45,7 +45,7 @@ class Player(object):
        """
        return bool(diff)
 
-    def fold(self):
+    def foldBet(self):
        """
        :returns: self
 
@@ -76,6 +76,26 @@ class Player(object):
 
         """
         pass
+
+
+    def options(self, action):
+        """
+        Gives all options to the player
+        :action: input of the player
+        :returns: used function
+
+        """
+        action = PrintOuts().options()
+        options = {1: self.checkBet ,
+                    2: self.callBet , 
+                    3: self.raiseBet , 
+                    4: self.fold , 
+                    5: self.allIn,
+                    }
+
+        return options[action]()
+
+
 
 
 class EasyBot(Player):
