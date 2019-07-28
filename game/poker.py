@@ -38,6 +38,7 @@ class Game(object):
         """
         self.name = printouts.nameQuest()
         self.numPlayers = printouts.numQuest()
+        self.difficulty = printouts.diffQuest()
 
     def giveCards(self):
         """
@@ -59,12 +60,19 @@ def main():
 
     game = Game()
     game.askQuestions()
-    
+
+    rounds = 1
+    while True:
+        printouts.info(game.name, game.money, rounds)
+        printouts.options()
+        break
 
     game.createPlayers()
     game.giveCards()
     game.dealer.drawTable()
     game.dealer.drawTable()
+
+
 
 
     det = detector.Detector()
@@ -76,6 +84,7 @@ def main():
         print(i.hand)
         print("Final Countdown: ", game.dealer.findHandValue(i))
         print()
+
 
 if __name__ == "__main__":
     main()
