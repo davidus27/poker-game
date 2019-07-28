@@ -15,8 +15,6 @@ class Game(object):
     Creates players based on inputs on call.
     """
     def __init__(self):
-        self.player = None
-        self.players = []
         self.info = printouts.PrintOuts()
         self.dealer = dealer.Dealer(self.info.numPlayers)
 
