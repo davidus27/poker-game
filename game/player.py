@@ -14,6 +14,20 @@ class Player(object):
         self.hand = []
 
 
+    def callBet(self):
+       """
+       Action for player to call a bet on table
+
+       :returns: TODO
+
+       """
+       if self.money > self.diff:
+           self.money -= self.diff
+       else:
+           pass
+
+
+
     def options(self, action):
         """
         Gives all options to the player
