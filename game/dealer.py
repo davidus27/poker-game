@@ -94,3 +94,31 @@ class Dealer(object):
                self.addPlayer(player.EasyBot())
                self.players[i].name +=str(i)
         return self
+
+
+    
+    def findHandValue(self, player):
+        """
+        Goes through the list of possible hands to find best one from top to the bottom
+
+        :player: TODO
+        :returns: float/int hand value of the player
+
+        """
+        d = detector.Detector()
+        cards = d.sortCards(self.listCards(player))
+        histogram = d.createHistogram(cards)
+        options = [d.royalFlush(cards),
+                   d.straightFlush(cards),
+                   d.fullHouse(histogram, cards),
+                   d.flush(cards),
+                   d.fourOfKind(histogram, cards),
+                   d.threeOfKind(histogram, cards),
+                   d.twoPairs(histogram, cards),
+                   d.pair(histogram, cards),]
+        
+        for index,option in enumerate(options):
+            if option:
+                return 8 - index #+ d.highCard(option)
+        return False
+        #return d.highCard(cards)

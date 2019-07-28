@@ -78,6 +78,23 @@ class Detector(object):
                 pack.append(i)
         return pack
 
+
+    def highCard(self,  cards):
+        """
+        Finds the high value of cards. From the biggest card to the lowest it increments the decimal place.
+
+        :cards: TODO
+        :returns: TODO
+
+        """
+        cards = self.sortCards(cards)
+        value = 0
+        for index,card in enumerate(cards):
+            value += 0.01**(index+1) * (self.cardsOrder.index(card[0])+2)
+        return value
+
+
+
     def pair(self, histogram, cards):
         """
         Checks if the dictionary has ONE pair

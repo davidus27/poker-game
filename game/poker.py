@@ -84,6 +84,8 @@ def main():
         print("Full house: ", det.fullHouse(histogram, cards))
         print("StraightFlush: ", det.straightFlush(cards))
         print("RoyalFlush: ", det.royalFlush(cards))
+        print("Final Countdown: ", game.dealer.findHandValue(i))
+        print("High card: ", det.highCard(cards))
         print()
 
 
