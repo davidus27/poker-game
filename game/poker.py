@@ -23,8 +23,13 @@ class Game(object):
 
 
     def createPlayers(self):
-        player = self.dealer.firstPlayer(self.info.name, self.info.money)
-        self.dealer.createPlayers(player)
+        #player = self.dealer.firstPlayer(self.info.name, self.info.money)
+        #self.dealer.createPlayers(player)
+        #self.dealer.firstPlayer(self.info.name, self.info.money)
+        #self.dealer.createBots()
+        self.dealer.createPlayers(name = self.info.name,
+                                  money = self.info.money, 
+                                  difficulty =self.info.difficulty, )
         return self
 
 

@@ -80,22 +80,18 @@ class Dealer(object):
         return self.tableCards + player.hand
 
 
-
-    def createPlayers(self, user):
-        if isinstance(user , type(player.Player())):
-            self.players.append(user) #creates player as the first one
-            for i in range(1, self.numPlayers):
-                self.players.append(player.EasyBot())
-                self.players[i].name += str(i)
-        else: 
-            print("Your input is not instance of Player")
-        
+    def addPlayer(self,player):
+        self.players.append(player)
         return self
 
 
-    def firstPlayer(self, name, money):
+    def createPlayers(self,name,money, difficulty="easy"):
         """
-        Creating first player
-
+        Create individual player and his opponents based on difficulty
         """
-        return player.Player(name, money)
+        self.addPlayer(player.Player())
+        for i in range(self.numPlayers):
+            if difficulty == "easy":
+               self.addPlayer(player.EasyBot())
+               self.players[i].name +=str(i)
+        return self

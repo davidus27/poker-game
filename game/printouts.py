@@ -10,9 +10,9 @@ class PrintOuts(object):
     Manages game's behaviour on terminal
     """
 
-    def __init__(self, name="Player0", numPlayers=2, difficulty="easy"):
+    def __init__(self, name="Player0", money = 500.0, numPlayers=2, difficulty="easy"):
         self.name = name
-        self.money = 500.0
+        self.money = money
         self.numPlayers = numPlayers
         self.difficulty = difficulty
 
