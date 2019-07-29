@@ -58,18 +58,18 @@ class Game(object):
         for i in self.dealer.players:
             i.options()
         return self
-
-    def controlDifferences(self, players):
+ 
+    def gameOn(self):
         """
-        Checks everyone's bets if it's the same
+        Clears all the cards, create cards and shuffles them
         :returns: TODO
 
         """
-        bet = players[0].diff
-        for player in self.players:
-            if player.diff != bet:
-                return False
-        return True
+        self.dealer.clearCards()
+        self.dealer.buildDeck()
+        self.dealer.shuffle()
+        return self
+
 
     def round(self):
         """
@@ -140,7 +140,6 @@ def main():
     print("Let's play Texas Hold'em!\n")
     game.askQuestions()
     game.createPlayers()
-    game.giveCards()
     rounds = 1
     players = []
     while True:
@@ -153,6 +152,8 @@ def main():
         #River-final card
         #Last beting
         #Showdown-cards are showed (if any players are left)
+        game.gameOn()
+        game.giveCards()
         players = game.dealer.players
         print("Round", rounds)
 
