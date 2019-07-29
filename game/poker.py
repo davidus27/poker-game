@@ -57,16 +57,13 @@ def main():
     """ 
     Work to create game
     """
-
     game = Game()
     game.askQuestions()
-
     rounds = 1
     while True:
         printouts.info(game.name, game.money, rounds)
         printouts.options()
         break
-
     game.createPlayers()
     game.giveCards()
     game.dealer.drawTable()

@@ -262,5 +262,5 @@ def findHandValue(cards):
     for index,option in enumerate(options):
         if option:
             return (8 - index) + highCard(option)
-    return d.highCard(cards)
+    return highCard(cards)
 
