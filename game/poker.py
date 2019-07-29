@@ -58,17 +58,19 @@ def main():
     Work to create game
     """
     game = Game()
-    game.askQuestions()
+    print("Let's play Texas Hold'em!")
+    #game.askQuestions()
     rounds = 1
-    while True:
-        printouts.info(game.name, game.money, rounds)
-        printouts.options()
-        break
+    #while True:
+    #    printouts.info(game.name, game.money, rounds)
+    #    printouts.options()
+    #    break
     game.createPlayers()
     game.giveCards()
     game.dealer.drawTable()
     game.dealer.drawTable()
 
+    printouts.cards(game.dealer.tableCards)
     print(game.dealer.tableCards) 
     for i in game.dealer.players:
         cards = detector.sortCards(game.dealer.listCards(i))
