@@ -155,7 +155,7 @@ def main():
         game.gameOn()
         game.giveCards()
         players = game.dealer.players
-        print("Round", rounds)
+        print("\n\t\tRound", rounds)
 
         #Preflop
         phase = "Preflop"
@@ -176,7 +176,7 @@ def main():
 
         print("\n\t\tShowdown\n")
         game.showdown(players)
-
+        rounds += 1
         if len(game.dealer.players) == 1:
             break
         
