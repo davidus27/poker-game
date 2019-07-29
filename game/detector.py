@@ -7,8 +7,6 @@ Github: https://github.com/davidus27
 Description: Library for easier detection of all existing hand values of players.
 """
 
-suits = ["Spades", "Clubs", "Diamonds", "Hearts"]
-#numericalValues = {"Jack":11, "Queen":12, "King":13, "Ace":14}
 cardsOrder = [2,3,4,5,6,7,8,9,10, "Jack", "Queen" , "King", "Ace"]
 
 """
@@ -82,7 +80,6 @@ def highCard( cards):
     :returns: TODO
 
     """
-    cards = sortCards(cards)
     value = 0
     for index,card in enumerate(cards):
         value += 0.01**(index+1) * (cardsOrder.index(card[0])+2)
@@ -152,7 +149,6 @@ def straight(cards):
 
     """
     pack = []
-    cards = sortCards(cards)
     for index,card in enumerate(cards):
         if len(pack) == 4:
             pack.append(card)
@@ -184,8 +180,7 @@ def flush(cards):
 
     """
     #it will lookup the biggest flush in cards
-    cards = sortCards(cards)
-    
+    suits = ["Spades", "Clubs", "Diamonds", "Hearts"]
     for i in suits:
         pack=[]
         for j in cards:
