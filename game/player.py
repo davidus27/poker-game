@@ -6,6 +6,7 @@ Description:Player and variations of bots.
 """
 from random import random
 from printouts import optionsInput
+from sys import exit
 
 class Player(object):
     def __init__(self, name = "Player", money = 500.0):
@@ -35,7 +36,7 @@ class Player(object):
        :diff: the amount to call
        :raising: amount to 
        """
-       print("{} raiseBet!".format(self.name))
+       print("{} raiseBet".format(self.name))
        return True
 
     def checkBet(self):
@@ -47,7 +48,8 @@ class Player(object):
 
        """
        print("{} check".format(self.name))
-       return bool(self.diff)
+       #return bool(self.diff)
+       return True
 
     def foldBet(self):
        """
@@ -69,6 +71,10 @@ class Player(object):
        #currentBet += self.money
        print("{} all in!".format(self.name))
        return money
+
+    def quit(self):
+        print("Exiting program. Hope you will come back again.")
+        exit()
     
     def options(self):
         """
@@ -78,7 +84,8 @@ class Player(object):
 
         """
         action = optionsInput()
-        options = {1: self.checkBet ,
+        options = { 0: self.quit,
+                    1: self.checkBet ,
                     2: self.callBet , 
                     3: self.raiseBet , 
                     4: self.foldBet , 

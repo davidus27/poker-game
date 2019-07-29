@@ -94,17 +94,7 @@ class Dealer(object):
                self.addPlayer(player.EasyBot())
                self.players[i].name +=str(i)
         return self
-   
-    def round(self):
-        """
-        Questions every player which option will be choosen
-        :returns: TODO
-
-        """
-        for i in self.players:
-            i.options()
-        return self
-
+ 
 
     def chooseWinner(self):
         """

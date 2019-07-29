@@ -49,33 +49,139 @@ class Game(object):
         self.dealer.dealCard()
         self.dealer.dealCard()
 
-import time
+    def question(self):
+        """
+        Questions every player which option will be choosen
+        :returns: TODO
+
+        """
+        for i in self.dealer.players:
+            i.options()
+        return self
+
+    def controlDifferences(self, players):
+        """
+        Checks everyone's bets if it's the same
+        :returns: TODO
+
+        """
+        bet = players[0].diff
+        for player in self.players:
+            if player.diff != bet:
+                return False
+        return True
+
+    def round(self):
+        """
+        Goes through all players until every player gave same ammount to the pot
+        :returns: TODO
+
+        """
+        self.question()
+
+    def printSituation(self, table=False):
+        """
+        Prints out whole situation in the game.
+        :returns: TODO
+
+        """
+        printouts.info(self.name, self.money)
+        print("Your cards:")
+        printouts.cards(self.dealer.players[0].hand)
+        print()
+        if table:
+            print("Community cards:")
+            printouts.cards(table)
+            print()
+   
+    def showdown(self, players):
+        """
+        Ending of the round
+        :returns: TODO
+
+        """
+        for player in players:
+            print(player.name)
+            printouts.cards(player.hand)
+        return self
+
+    def cardOnTable(self, phase):
+        """
+        Three cards on table while flop
+        :returns: TODO
+
+        """
+        if phase == "Preflop":
+            self.dealer.drawTable()
+            self.dealer.drawTable()
+            self.dealer.drawTable()
+        elif phase == "River":
+            pass
+        else:
+            self.dealer.drawTable()
+
+    def oneRound(self, phase):
+        """
+        Creates flop part of easy game
+        :returns: TODO
+
+        """
+        print("\n\t\t{}\n".format(phase))
+        self.printSituation(self.dealer.tableCards)
+        self.round()
+        self.cardOnTable(phase)
+
+
 def main():
     """ 
     Work to create game
     """
-    b = time.time()
     game = Game()
-    print("Let's play Texas Hold'em!")
-    #game.askQuestions()
+    print("Let's play Texas Hold'em!\n")
+    game.askQuestions()
     game.createPlayers()
     game.giveCards()
     rounds = 1
+    players = []
     while True:
-        printouts.info(game.name, game.money, rounds)
-        #for player in game.dealer.players:
-        #    cards = detector.sortCards(game.dealer.listCards(i))
-        #    histogram = detector.createHistogram(cards)
+        #The simple game functioning:
+        #Players bets on preflop (before the release of firt three cards)
+        #First three cards are released
+        #Another beting
+        #Turn-fourth card release
+        #Another bets
+        #River-final card
+        #Last beting
+        #Showdown-cards are showed (if any players are left)
+        players = game.dealer.players
+        print("Round", rounds)
+
+        #Preflop
+        phase = "Preflop"
+        game.oneRound(phase)
         
-        game.dealer.round()
-        break
+        #Flop
+        phase = "Flop"
+        game.oneRound(phase)
+        
+        #Turn
+        phase = "Turn"
+        game.oneRound(phase)
 
-    print(game.dealer.chooseWinner())
- 
+        #River
+        phase = "River"
+        game.oneRound(phase)
+        
+
+        print("\n\t\tShowdown\n")
+        game.showdown(players)
+
+        if len(game.dealer.players) == 1:
+            break
+        
+        #print(game.dealer.chooseWinner())
 
 
-
-    print(time.time()-b)
 
 if __name__ == "__main__":
     main()

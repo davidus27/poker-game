@@ -26,7 +26,7 @@ def diffQuest():
 
 
 
-def info(name, money, rounds):
+def info(name, money):
     """
     Printout basic info about player
 
@@ -35,7 +35,6 @@ def info(name, money, rounds):
     """
     print("Name:{}".format(name))
     print("Balance:{}".format(money))
-    print("Round:{}".format(rounds))
 
 def firstLine(cards):
     """
