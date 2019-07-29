@@ -92,7 +92,7 @@ class Dealer(object):
         return self
 
 
-    def createPlayers(self,numPlayers , name,money, difficulty="easy"):
+    def createPlayers(self,name,numPlayers=2,money=500.0, difficulty="easy"):
         """
         Create individual player and his opponents based on difficulty
         """

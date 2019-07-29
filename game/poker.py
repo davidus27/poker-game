@@ -14,31 +14,20 @@ class Game(object):
     """
     Creates players based on inputs on call.
     """
-    def __init__(self, name = "Player0", money = 500.0, difficulty ="easy", numPlayers = 2):
-        self.name = name
-        self.money = money
-        self.difficulty = difficulty
-        self.numPlayers = numPlayers
+    def __init__(self):
+        self.rounds = 1
+        self.players = []
         self.dealer = dealer.Dealer()
 
 
 
     def createPlayers(self):
-        self.dealer.createPlayers(numPlayers = self.numPlayers,
-                                name = self.name ,
-                                money = self.money,
-                                difficulty = self.difficulty, )
+        self.dealer.createPlayers(name = printouts.nameQuest(),
+                                  numPlayers = printouts.numQuest(),
+                                  money = 500,
+                                  difficulty = printouts.diffQuest()
+                                  )
         return self
-
-    def askQuestions(self):
-        """
-        Asks the player initial questions
-        :returns: TODO
-
-        """
-        self.name = printouts.nameQuest()
-        self.numPlayers = printouts.numQuest()
-        self.difficulty = printouts.diffQuest()
 
     def giveCards(self):
         """
@@ -85,7 +74,7 @@ class Game(object):
         :returns: TODO
 
         """
-        printouts.info(self.name, self.money)
+        printouts.info(self.dealer.players[0].name, self.dealer.players[0].money)
         print("Your cards:")
         printouts.cards(self.dealer.players[0].hand)
         print()
@@ -94,13 +83,13 @@ class Game(object):
             printouts.cards(table)
             print()
    
-    def showdown(self, players):
+    def showdown(self):
         """
         Ending of the round
         :returns: TODO
 
         """
-        for player in players:
+        for player in self.players:
             print(player.name)
             printouts.cards(player.hand)
         return self
@@ -138,10 +127,8 @@ def main():
     """
     game = Game()
     print("Let's play Texas Hold'em!\n")
-    game.askQuestions()
+    #game.askQuestions()
     game.createPlayers()
-    rounds = 1
-    players = []
     while True:
         #The simple game functioning:
         #Players bets on preflop (before the release of firt three cards)
@@ -154,8 +141,9 @@ def main():
         #Showdown-cards are showed (if any players are left)
         game.gameOn()
         game.giveCards()
-        players = game.dealer.players
-        print("\n\t\tRound", rounds)
+        #  deleting players that loose:  <29-07-19, dave> # 
+        game.players = game.dealer.players
+        print("\n\t\tRound", game.rounds)
 
         #Preflop
         phase = "Preflop"
@@ -173,10 +161,11 @@ def main():
         phase = "River"
         game.oneRound(phase)
         
-
+        #Showdown
         print("\n\t\tShowdown\n")
-        game.showdown(players)
-        rounds += 1
+        game.showdown()
+
+        game.rounds += 1
         if len(game.dealer.players) == 1:
             break
         
