@@ -128,7 +128,7 @@ def numQuest():
                 return numPlayers
  
  
-def options():
+def optionsInput():
         """
         Prints out the options of the player
 

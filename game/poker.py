@@ -48,37 +48,34 @@ class Game(object):
         """
         self.dealer.dealCard()
         self.dealer.dealCard()
-        self.dealer.drawTable()
-        self.dealer.drawTable()
-        self.dealer.drawTable()
 
 import time
 def main():
     """ 
     Work to create game
     """
+    b = time.time()
     game = Game()
     print("Let's play Texas Hold'em!")
     #game.askQuestions()
-    rounds = 1
-    #while True:
-    #    printouts.info(game.name, game.money, rounds)
-    #    printouts.options()
-    #    break
     game.createPlayers()
     game.giveCards()
-    game.dealer.drawTable()
-    game.dealer.drawTable()
+    rounds = 1
+    while True:
+        printouts.info(game.name, game.money, rounds)
+        #for player in game.dealer.players:
+        #    cards = detector.sortCards(game.dealer.listCards(i))
+        #    histogram = detector.createHistogram(cards)
+        
+        game.dealer.round()
+        break
 
-    printouts.cards(game.dealer.tableCards)
-    print(game.dealer.tableCards) 
-    for i in game.dealer.players:
-        cards = detector.sortCards(game.dealer.listCards(i))
-        histogram = detector.createHistogram(cards)
-        print(i.name)
-        print(i.hand)
-        print()
     print(game.dealer.chooseWinner())
+ 
+
+
+
+    print(time.time()-b)
 
 if __name__ == "__main__":
     main()
