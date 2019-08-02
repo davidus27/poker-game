@@ -22,9 +22,6 @@ class Dealer(object):
         self.tableCards = []
         self.pot = 0
 
-        self.buildDeck()
-        self.shuffle()
-
     def buildDeck(self):
         """
         Creates list of cards.
@@ -43,7 +40,6 @@ class Dealer(object):
             self.deck[i], self.deck[rand]= self.deck[rand], self.deck[i]
         return self
 
-    
     def drawCard(self):
         return self.deck.pop()
 
@@ -78,13 +74,25 @@ class Dealer(object):
         """
         return self.tableCards + player.hand
 
+    def clearCards(self):
+        """
+        Clear all played cards
+        :returns: TODO
 
+        """
+        self.tableCards = []
+        for index,player in enumerate(self.players):
+            self.players[index].hand = []
+        return self
+   
+    
+    
     def addPlayer(self,player):
         self.players.append(player)
         return self
 
 
-    def createPlayers(self,numPlayers , name,money, difficulty="easy"):
+    def createPlayers(self,name,numPlayers=2,money=500.0, difficulty="easy"):
         """
         Create individual player and his opponents based on difficulty
         """
@@ -94,7 +102,8 @@ class Dealer(object):
                self.addPlayer(player.EasyBot())
                self.players[i].name +=str(i)
         return self
-    
+ 
+
     def chooseWinner(self):
         """
         Decides who won the round

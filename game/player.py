@@ -5,6 +5,8 @@ Github:https://github.com/davidus27
 Description:Player and variations of bots.
 """
 from random import random
+from printouts import optionsInput
+from sys import exit
 
 class Player(object):
     def __init__(self, name = "Player", money = 500.0):
@@ -21,11 +23,12 @@ class Player(object):
        :returns: TODO
 
        """
-       if self.money > self.diff:
-           self.money -= self.diff
-       else:
-           pass
-
+       print("{} call".format(self.name))
+       #if self.money > self.diff:
+       #    self.money -= self.diff
+       #else:
+       #    return True
+       return True
     def raiseBet(self):
        """
        Method for raising bets
@@ -33,7 +36,8 @@ class Player(object):
        :diff: the amount to call
        :raising: amount to 
        """
-       pass
+       print("{} raiseBet".format(self.name))
+       return True
 
     def checkBet(self):
        """
@@ -43,16 +47,17 @@ class Player(object):
        :returns: True/False based on if you can check or not
 
        """
-       return bool(diff)
+       print("{} check".format(self.name))
+       #return bool(self.diff)
+       return True
 
     def foldBet(self):
        """
        :returns: self
 
        """
-       self.hands = []
-       self.end()
-       return self
+       print("{} fold.".format(self.name))
+       return True
 
 
     def allIn(self):
@@ -64,32 +69,26 @@ class Player(object):
 
        """
        #currentBet += self.money
-       money = self.money
-       self.money = 0.0
+       print("{} all in!".format(self.name))
        return money
 
-    def options(self, action):
+    def quit(self):
+        print("Exiting program. Hope you will come back again.")
+        exit()
+    
+    def options(self):
         """
         Gives all options to the player
         :action: input of the player
         :returns: used function
 
         """
-        pass
-
-
-    def options(self, action):
-        """
-        Gives all options to the player
-        :action: input of the player
-        :returns: used function
-
-        """
-        action = PrintOuts().options()
-        options = {1: self.checkBet ,
+        action = optionsInput()
+        options = { 0: self.quit,
+                    1: self.checkBet ,
                     2: self.callBet , 
                     3: self.raiseBet , 
-                    4: self.fold , 
+                    4: self.foldBet , 
                     5: self.allIn,
                     }
 
@@ -110,7 +109,7 @@ class EasyBot(Player):
        Player.__init__(self)
 
 
-    def options(self, action):
+    def options(self):
         """
         Gives all options to the player
         :action: input of the player
@@ -120,24 +119,29 @@ class EasyBot(Player):
         options = {1: self.checkBet ,
                     2: self.callBet , 
                     3: self.raiseBet , 
-                    4: self.fold , 
+                    4: self.foldBet , 
                     5: self.allIn,
                     }
+        while True:
+            x = random()
+            if x <= 0.05:
+                action = 4
 
-        x = random()
-        if x <= 0.05:
-            action = 4
+            elif x <= 0.45:
+                action = 1
 
-        elif x <= 0.45:
-            action = 1
+            elif x <= 0.85:
+                action = 2
 
-        elif x <= 0.85:
-            action = 2
+            elif x <= 0.995:
+                action = 3
 
-        elif x <= 0.995:
-            action = 3
-
-        elif x <= 1.0:
-            action = 5
-        return options[action]()
+            elif x <= 1.0:
+                action = 5
+            
+            choosen = options[action]()
+            if choosen:
+                return choosen
+            else:
+                continue
 
