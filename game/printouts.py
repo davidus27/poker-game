@@ -104,6 +104,17 @@ def cards(cards):
     middleLine(cards)
     lastLine(cards)
 
+def raising(minimum, maximum):
+    """
+    Asks the player how much will he raise the pot
+    :returns: TODO
+
+    """
+    print("How much do you want to raise [{0}-{1}]: ".format(maximum, minimum))
+    #raised = int(input())
+    #return raised if raised == type(int) and raised >= minimal and raised <= maximum else False
+    return int(input())
+
 def numQuest():
     """
     Asks about number of players
@@ -147,3 +158,19 @@ def optionsInput():
                 return int(input(">")) % 6
             except:
                 print("You need to put number.")
+
+def roundWinners(index):
+    """
+    Shows the winner(s)
+
+    :index: TODO
+    :returns: TODO
+
+    """
+    if len(index) == 1:
+        print("The winner is ",index[0])
+    else:
+        print("Winners are: ", end="")
+        for i in index:
+            print(i, ", ",end="")
+        print()

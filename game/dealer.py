@@ -43,6 +43,20 @@ class Dealer(object):
     def drawCard(self):
         return self.deck.pop()
 
+
+    def round(self):
+        """
+        Questions every player which option will be choosen
+        :returns: TODO
+
+        """
+        for i in self.players:
+            diff = i.options()
+            if diff:
+                self.players[self.players.index(i)+1].diff = diff 
+        return self
+ 
+
             
     def dealCard(self):
         """
@@ -114,14 +128,19 @@ class Dealer(object):
         for player in self.players:
             handValues.append(findHandValue(self.listCards(player)))
                              
-        print(handValues)
-        maxValue = 0
-        for value in handValues:
-            if value > maxValue:
-                maxValue = value
-        maxValues = []
-        print(maxValue)
+        maxValue = max(handValues)
+        indexMaxValues = []
         for value in handValues:
             if value == maxValue:
-                maxValues.append(handValues.index(maxValue))
-        return maxValues
+                indexMaxValues.append(handValues.index(maxValue))
+        return indexMaxValues
+
+
+    def givePot(self,index):
+        """
+        Gives the pot to the winner(s)
+        :returns: TODO
+
+        """
+        for i in index:
+            self.players[i].money += self.pot/len(index)

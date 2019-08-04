@@ -7,9 +7,8 @@ Description: Game is the main Object implementing all the necessary tools for pl
 """
 import dealer
 import printouts
-
 import detector
-
+import os
 class Game(object):
     """
     Creates players based on inputs on call.
@@ -44,7 +43,7 @@ class Game(object):
         :returns: TODO
 
         """
-        for i in self.dealer.players:
+        for i in self.players:
             i.options()
         return self
  
@@ -59,6 +58,19 @@ class Game(object):
         self.dealer.shuffle()
         return self
 
+    def controlDifferences(self):
+        """
+        checks if there are any differences
+        :arg1: TODO
+        :returns: TODO
+
+        """
+        for player in self.players:
+            if player.diff == 0.0:
+                continue
+            else:
+                return False
+        return True
 
     def round(self):
         """
@@ -66,7 +78,23 @@ class Game(object):
         :returns: TODO
 
         """
-        self.question()
+        while True:
+            for index,player in enumerate(self.players):
+                diff = player.options()
+                print("Difference of the player {} is {}".format(player.name,diff))
+                x = (index + 1) % len(self.players)
+                if type(diff) == tuple:
+                   self.players.remove(player)
+                   diff = diff[1]
+                if diff:
+                    self.players[x].diff = diff
+                            if self.controlDifferences():
+                break
+            else:
+                continue
+                #break if self.controlDifferences() else continue 
+        return self
+
 
     def printSituation(self, table=False):
         """
@@ -92,6 +120,10 @@ class Game(object):
         for player in self.players:
             print(player.name)
             printouts.cards(player.hand)
+
+        self.dealer.givePot(self.dealer.chooseWinner())
+        printouts.roundWinners()
+        input("Press Enter to continue.")
         return self
 
     def cardOnTable(self, phase):
@@ -119,7 +151,6 @@ class Game(object):
         self.printSituation(self.dealer.tableCards)
         self.round()
         self.cardOnTable(phase)
-
 
 def main():
     """ 
