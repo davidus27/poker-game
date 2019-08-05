@@ -14,72 +14,74 @@ class Player(object):
         self.name = name
         self.money = money
         self.hand = []
-        self.diff = 0.0
+        self.deposit = 0.0 #how much money player spend in one game
+        self.bet = 0.0 #how much money one player need to get to the game to play
+        #if bet - deposit == check
 
-
-    def clearDiff(self):
+    def clearDebt(self):
         """
-        Clears diff after operation
+        Clears deposit and bet on each game
         :returns: TODO
 
         """
-        diff = self.diff
-        self.diff = 0
-        return diff
-
+        self.bet = 0.0
+        self.deposit = 0.0
+        return self
 
     def callBet(self):
         """
         Action for player to call a bet on table
 
-        :returns: diff
+        :returns: deposit
 
         """
-        if self.diff == 0.0:
+        if not self.bet - self.deposit:
             return self.checkBet()
      
-        elif self.diff >= self.money:
+        elif self.bet >= self.money:
             return self.allin()
     
-        elif self.diff < self.money:
-           self.money -= self.diff
+        elif self.bet < self.money:
+           self.money -= self.bet - self.deposit
+           self.deposit = self.bet
            print("{} call".format(self.name))
-           return self.clearDiff()
+           return self.bet
 
     def raiseBet(self):
        """
        Method for raising bets
-       :returns: diff
+       :returns: bet
        """
        while True:  
-            raised = raising(self.diff, self.money)
+            raised = raising(self.bet, self.money)
             
-            if raised < self.diff:
+            if raised < self.bet:
                 print("Too small investment. You need to input more.")
             
-            elif raised == self.diff:
+            elif raised == self.bet:
                 return self.callBet()
             
             elif raised >= self.money:
                 return self.allin()
-
+            
             else:
                 self.money -= raised
+                self.bet = raised 
                 print("{} raised bet:{} ".format(self.name,raised))
-                return raised - self.clearDiff()
+                return self.bet
 
     def checkBet(self):
         """
-        Checks only if diff is zero
+        Checks only if difference between deposit and bet is zero
         
         :returns: True/False based on if you can check or not
         """
-        if self.diff:
+        if self.bet - self.deposit:
             print("Cannot perform check.", self.name)
             return False
         else:
             print("{} check".format(self.name))
-            return 0.0
+            return self.bet
 
     def foldBet(self):
        """
@@ -88,7 +90,7 @@ class Player(object):
        """
        print("{} fold.".format(self.name))
        self.hand = []
-       return -1,self.clearDiff()
+       return 0,self.bet
 
     def allin(self):
        """
@@ -100,9 +102,9 @@ class Player(object):
        """
        #currentBet += self.money
        print("{} all in!".format(self.name))
-       everything = self.money
+       self.deposit += self.money
        self.money = 0
-       return everything-self.clearDiff()
+       return -1
 
     def quit(self):
         print("Exiting program. Hope you will come back again.")
@@ -125,10 +127,17 @@ class Player(object):
         while True:
             action = optionsInput()
             choosed = options[action]()
-            if choosed is not False:
-                return choosed
+            if self.bet == -1:
+                print("You can only go allin or fold.")
+                if action == 4 or action == 5:
+                    return choosed
+                else:
+                    print("Incorrect")
             else:
-                continue
+                if choosed is not False:
+                    return choosed
+                else:
+                    continue
 
 class EasyBot(Player):
 
@@ -141,27 +150,28 @@ class EasyBot(Player):
        """TODO: to be defined1. """
        Player.__init__(self)
 
-
     def raiseBet(self):
        """
        Method for raising bets
-
-       :diff: the amount to call
-       :raising: amount to 
+       :returns: bet
        """
        while True:  
-            raised = randint(1,self.money) 
-            if raised < self.diff:
+            raised = randint(self.bet, self.money)
+            
+            if raised < self.bet:
                 print("Too small investment. You need to input more.")
-            elif raised == self.diff:
-                return self.checkBet()
+            
+            elif raised == self.bet:
+                return self.callBet()
+            
             elif raised >= self.money:
                 return self.allin()
-
+            
             else:
                 self.money -= raised
+                self.bet = raised 
                 print("{} raised bet:{} ".format(self.name,raised))
-                return raised-self.diff
+                return self.bet
 
     def options(self):
         """
@@ -178,20 +188,26 @@ class EasyBot(Player):
                     }
         while True:
             x = random()
-            if x <= 0.05:
-                action = 4
+            if self.bet == -1:
+                if x <= 0.5:
+                    action = 4
+                else:
+                    action = 5
+            else:
+                if x <= 0.05:
+                    action = 4
 
-            elif x <= 0.45:
-                action = 1
+                elif x <= 0.45:
+                    action = 1
 
-            elif x <= 0.85:
-                action = 2
+                elif x <= 0.85:
+                    action = 2
 
-            elif x <= 0.995:
-                action = 3
+                elif x <= 0.995:
+                    action = 3
 
-            elif x <= 1.0:
-                action = 5
+                elif x <= 1.0:
+                    action = 5
             
             choosen = options[action]()
             if choosen is not False:

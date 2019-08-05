@@ -58,15 +58,16 @@ class Game(object):
         self.dealer.shuffle()
         return self
 
-    def controlDifferences(self):
+    def controlDeposit(self):
         """
         checks if there are any differences
         :arg1: TODO
         :returns: TODO
 
         """
+        deposit = self.players[0].deposit #reference
         for player in self.players:
-            if player.diff == 0.0:
+            if player.deposit == deposit:
                 continue
             else:
                 return False
@@ -80,19 +81,22 @@ class Game(object):
         """
         while True:
             for index,player in enumerate(self.players):
-                diff = player.options()
-                print("Difference of the player {} is {}".format(player.name,diff))
+                bet = player.options()
                 x = (index + 1) % len(self.players)
-                if type(diff) == tuple:
-                   self.players.remove(player)
-                   diff = diff[1]
-                if diff:
-                    self.players[x].diff = diff
-                            if self.controlDifferences():
+                
+                if type(bet) == tuple:
+                    self.players.remove(player)
+                    bet = bet[1]
+                elif bet:
+                    self.players[x].bet = bet
+                
+                self.dealer.pot += player.bet - player.deposit
+                print("Pot:", self.dealer.pot)
+            if self.controlDeposit():
                 break
             else:
                 continue
-                #break if self.controlDifferences() else continue 
+                #break if self.controlbeterences() else continue 
         return self
 
 
