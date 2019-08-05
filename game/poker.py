@@ -169,8 +169,9 @@ class Game(object):
             print(player.name)
             printouts.cards(player.hand)
 
-        self.dealer.givePot(self.dealer.chooseWinner())
-        printouts.roundWinners()
+        winners = self.dealer.chooseWinner()
+        self.dealer.givePot(winners)
+        printouts.roundWinners(winners)
         input("Press Enter to continue.")
         return self
 
