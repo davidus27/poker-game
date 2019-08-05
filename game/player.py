@@ -43,32 +43,39 @@ class Player(object):
     
         elif self.bet < self.money:
            self.money -= self.bet - self.deposit
+           diff = self.bet - self.deposit
            self.deposit = self.bet
            print("{} call".format(self.name))
-           return self.bet
+           return (self.bet,diff)
+
+    def raising(self):
+        """
+        Function for getting input
+        :returns: TODO
+
+        """
+        return raising(1, self.money)
+
 
     def raiseBet(self):
        """
        Method for raising bets
        :returns: bet
        """
-       while True:  
-            raised = raising(self.bet, self.money)
-            
-            if raised < self.bet:
-                print("Too small investment. You need to input more.")
-            
-            elif raised == self.bet:
+       while True:
+            raised = self.raising()
+            if raised == 0.0:
                 return self.callBet()
             
-            elif raised >= self.money:
+            elif raised >= self.money-self.bet:
                 return self.allin()
             
             else:
-                self.money -= raised
-                self.bet = raised 
+                self.money -= raised + self.bet
+                self.bet += raised
+                self.deposit = self.bet
                 print("{} raised bet:{} ".format(self.name,raised))
-                return self.bet
+                return (self.bet,raised)
 
     def checkBet(self):
         """
@@ -81,7 +88,7 @@ class Player(object):
             return False
         else:
             print("{} check".format(self.name))
-            return self.bet
+            return (self.bet,0)
 
     def foldBet(self):
        """
@@ -90,7 +97,7 @@ class Player(object):
        """
        print("{} fold.".format(self.name))
        self.hand = []
-       return 0,self.bet
+       return (self.bet,-1)
 
     def allin(self):
        """
@@ -150,28 +157,13 @@ class EasyBot(Player):
        """TODO: to be defined1. """
        Player.__init__(self)
 
-    def raiseBet(self):
-       """
-       Method for raising bets
-       :returns: bet
-       """
-       while True:  
-            raised = randint(self.bet, self.money)
-            
-            if raised < self.bet:
-                print("Too small investment. You need to input more.")
-            
-            elif raised == self.bet:
-                return self.callBet()
-            
-            elif raised >= self.money:
-                return self.allin()
-            
-            else:
-                self.money -= raised
-                self.bet = raised 
-                print("{} raised bet:{} ".format(self.name,raised))
-                return self.bet
+    def raising(self):
+        """
+        Function for getting random input
+        :returns: TODO
+
+        """
+        return randint(self.bet, self.money)
 
     def options(self):
         """

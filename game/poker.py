@@ -81,6 +81,49 @@ class Game(object):
         """
         while True:
             for index,player in enumerate(self.players):
+                #prev_depo = player.deposit
+                bet = player.options()
+                x = (index + 1) % len(self.players)
+                
+                if bet == -1:
+                    pass 
+                    #Allin
+                else:
+                    if bet[1] == -1:
+                        #fold
+                        self.players.remove(player)
+                    else:
+                        self.players[x].bet = bet[0]
+                        self.dealer.pot += bet[1]
+                print("Bet:{}\nDeposit:{}".format(player.bet,player.deposit))
+                print("Pot:", self.dealer.pot)
+            if self.controlDeposit():
+                break
+            else:
+                continue
+        return self
+        """"
+                if type(bet) == tuple:
+                    self.players.remove(player)
+                    bet = bet[1]
+                elif bet:
+                    self.players[x].bet = bet
+                print("Pot before:", self.dealer.pot) 
+                self.dealer.pot += bet - prev_depo
+                print("Bet:{}\nDeposit:{}".format(player.bet,player.deposit))
+                print("Pot:", self.dealer.pot)
+            print(self.controlDeposit())
+            if self.controlDeposit():
+                break
+            else:
+                continue
+        return self
+        """
+
+        """
+        while True:
+            for index,player in enumerate(self.players):
+                prev_depo = player.deposit
                 bet = player.options()
                 x = (index + 1) % len(self.players)
                 
@@ -89,16 +132,17 @@ class Game(object):
                     bet = bet[1]
                 elif bet:
                     self.players[x].bet = bet
-                
-                self.dealer.pot += player.bet - player.deposit
+                print("Pot before:", self.dealer.pot) 
+                self.dealer.pot += bet - prev_depo
+                print("Bet:{}\nDeposit:{}".format(player.bet,player.deposit))
                 print("Pot:", self.dealer.pot)
+            print(self.controlDeposit())
             if self.controlDeposit():
                 break
             else:
                 continue
-                #break if self.controlbeterences() else continue 
         return self
-
+        """
 
     def printSituation(self, table=False):
         """
