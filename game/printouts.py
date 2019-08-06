@@ -159,7 +159,7 @@ def optionsInput():
             except:
                 print("You need to put number.")
 
-def roundWinners(index):
+def roundWinners(names):
     """
     Shows the winner(s)
 
@@ -167,10 +167,10 @@ def roundWinners(index):
     :returns: TODO
 
     """
-    if len(index) == 1:
-        print("The winner is ",index[0])
+    if len(names) == 1:
+        print("The winner is ",names[0])
     else:
         print("Winners are: ", end="")
-        for i in index:
-            print(i, ", ",end="")
+        for name in names:
+            print(name, ", ",end="")
         print()

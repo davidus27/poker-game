@@ -102,47 +102,6 @@ class Game(object):
             else:
                 continue
         return self
-        """"
-                if type(bet) == tuple:
-                    self.players.remove(player)
-                    bet = bet[1]
-                elif bet:
-                    self.players[x].bet = bet
-                print("Pot before:", self.dealer.pot) 
-                self.dealer.pot += bet - prev_depo
-                print("Bet:{}\nDeposit:{}".format(player.bet,player.deposit))
-                print("Pot:", self.dealer.pot)
-            print(self.controlDeposit())
-            if self.controlDeposit():
-                break
-            else:
-                continue
-        return self
-        """
-
-        """
-        while True:
-            for index,player in enumerate(self.players):
-                prev_depo = player.deposit
-                bet = player.options()
-                x = (index + 1) % len(self.players)
-                
-                if type(bet) == tuple:
-                    self.players.remove(player)
-                    bet = bet[1]
-                elif bet:
-                    self.players[x].bet = bet
-                print("Pot before:", self.dealer.pot) 
-                self.dealer.pot += bet - prev_depo
-                print("Bet:{}\nDeposit:{}".format(player.bet,player.deposit))
-                print("Pot:", self.dealer.pot)
-            print(self.controlDeposit())
-            if self.controlDeposit():
-                break
-            else:
-                continue
-        return self
-        """
 
     def printSituation(self, table=False):
         """

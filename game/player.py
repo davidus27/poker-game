@@ -35,18 +35,19 @@ class Player(object):
         :returns: deposit
 
         """
-        if not self.bet - self.deposit:
+        debt = self.bet - self.deposit
+        if not debt - self.deposit:
             return self.checkBet()
      
-        elif self.bet >= self.money:
+        elif debt >= self.money:
             return self.allin()
     
-        elif self.bet < self.money:
+        elif debt < self.money:
            self.money -= self.bet - self.deposit
-           diff = self.bet - self.deposit
+           debt = self.bet - self.deposit
            self.deposit = self.bet
            print("{} call".format(self.name))
-           return (self.bet,diff)
+           return (self.bet,debt)
 
     def raising(self):
         """
@@ -54,7 +55,8 @@ class Player(object):
         :returns: TODO
 
         """
-        return raising(1, self.money)
+        debt = self.bet - self.deposit
+        return raising(1, self.money-debt)
 
 
     def raiseBet(self):
@@ -63,19 +65,21 @@ class Player(object):
        :returns: bet
        """
        while True:
+            debt = self.bet - self.deposit
             raised = self.raising()
             if raised == 0.0:
                 return self.callBet()
             
-            elif raised >= self.money-self.bet:
+            elif raised >= self.money-debt:
                 return self.allin()
             
             else:
                 self.money -= raised + self.bet
+                bet = self.bet
                 self.bet += raised
                 self.deposit = self.bet
                 print("{} raised bet:{} ".format(self.name,raised))
-                return (self.bet,raised)
+                return (self.bet,bet + raised)
 
     def checkBet(self):
         """
@@ -96,7 +100,6 @@ class Player(object):
 
        """
        print("{} fold.".format(self.name))
-       self.hand = []
        return (self.bet,-1)
 
     def allin(self):
@@ -110,6 +113,7 @@ class Player(object):
        #currentBet += self.money
        print("{} all in!".format(self.name))
        self.deposit += self.money
+       self.bet = -1
        self.money = 0
        return -1
 
@@ -163,7 +167,8 @@ class EasyBot(Player):
         :returns: TODO
 
         """
-        return randint(self.bet, self.money)
+        debt = self.bet - self.deposit
+        return randint(1, self.money - debt) 
 
     def options(self):
         """
@@ -186,10 +191,10 @@ class EasyBot(Player):
                 else:
                     action = 5
             else:
-                if x <= 0.05:
-                    action = 4
+                #if x <= 0.005:
+                #    action = 4
 
-                elif x <= 0.45:
+                if x <= 0.45:
                     action = 1
 
                 elif x <= 0.85:
@@ -198,8 +203,8 @@ class EasyBot(Player):
                 elif x <= 0.995:
                     action = 3
 
-                elif x <= 1.0:
-                    action = 5
+                #elif x <= 1.0:
+                #    action = 5
             
             choosen = options[action]()
             if choosen is not False:
