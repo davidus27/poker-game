@@ -13,6 +13,7 @@ class Player(object):
     def __init__(self, name = "Player", money = 500.0):
         self.name = name
         self.money = money
+        self.handValue = 0.0
         self.hand = []
         self.deposit = 0.0 #how much money player spend in one game
         self.bet = 0.0 #how much money one player need to get to the game to play

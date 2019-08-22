@@ -137,13 +137,15 @@ class Game(object):
             print(player.name, "")
             printouts.cards(player.hand)
 
-        self.dealer.cleanPlayers()
         winners = self.dealer.chooseWinner(self.players)
+        
+        for p in self.players:
+            print(p.name, p.handValue)
         x = [winner.name for winner in winners]
         printouts.roundWinners(x)
         self.dealer.givePot(winners)
-
         
+        self.dealer.cleanPlayers()
         self.clearPlayersDebt()
         input("Press Enter to continue.")
         return self

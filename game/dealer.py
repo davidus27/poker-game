@@ -118,49 +118,39 @@ class Dealer(object):
                self.players[i].name +=str(i)
         return self
 
-
-
-    """
-    def createPlayers(self,name,numPlayers=2,money=500.0, difficulty="easy"):
-        self.addPlayer(player.Player(name,money))
-        for i in range(1,numPlayers+1):
-            if difficulty == "easy":
-               self.addPlayer(player.EasyBot())
-               self.players[i].name +=str(i)
-        return self
-    """
-
     def calculateHandValues(self, players):
         """
-        Creates a list of hand values of erverybody playing
+        Creates a list of hand values of everybody playing
 
         :players: TODO
         :returns: TODO
 
         """
-        handValues = []
         for player in players:
-            handValues.append((findHandValue(self.listCards(player)), self.players.index(player)))
-        return handValues
+            player.handValue = findHandValue(self.listCards(player))
+        return players
 
     def chooseWinner(self, players):
         """
-        Decides who won the round
-        :returns: TODO
+        Decides who wins the prize by sorting players by their handValues
+
+        :players: TODO
+        :returns: winning player, or list of players if more then one
 
         """
-        handValues = self.calculateHandValues(players)
-        #maxValue = max(handValues)
-        handValues.sort(reverse = True)
-        winningPlayers = [players[0]]
-        #  Create ellegant and easy to understand function for adding players to the list with same values:  <08-08-19, dave> # 
-        for index,value in enumerate(handValues):
-            if value[0] == handValues[index+1][0]:
-                winningPlayers.append(self.players[value[1]+1])
+        players = self.calculateHandValues(players)
+        for player in players:
+            print(player.name, player.handValue)
+        players = sorted(players, key = lambda x: x.handValue, reverse = True)
+        #players.sort(reverse = True) #get lambda to sort by hand value attribute 
+        winners = [players[0]]
+        for player in players[1:]:
+            if player.handValue != winners[0].handValue:
+                break
             else:
-                return winningPlayers
-        return winningPlayers
-    
+                winners.append(player)
+        return winners
+
     def givePot(self,players):
         """
         Gives the pot to the winner(s)

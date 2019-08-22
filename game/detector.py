@@ -57,7 +57,7 @@ def createHistogram(cards):
 
     return histogram
 
-def find( cards, value):
+def find(cards, value):
     """
     Returns list of cards with same value
     :cards: haystack
@@ -72,7 +72,7 @@ def find( cards, value):
     return pack
 
 
-def highCard( cards):
+def highCard(cards):
     """
     Finds the high value of cards. From the biggest card to the lowest it increments the decimal place.
 
