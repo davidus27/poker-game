@@ -38,6 +38,8 @@ The value of hand will get number based on the sequence above
 
 Highcard will enumerate decimal places so if two players will have same hand the higher cards will win.
 
+Card format:
+    (number, color)
 """
 
 def createHistogram(cards):
@@ -77,12 +79,12 @@ def highCard(cards):
     Finds the high value of cards. From the biggest card to the lowest it increments the decimal place.
 
     :cards: TODO
-    :returns: TODO
+    :returns: float
 
     """
-    value = 0
+    value = 0.0
     for index,card in enumerate(cards):
-        value += 0.01**(index+1) * (cardsOrder.index(card[0])+2)
+        value += 0.01**(index+1) * (cardsOrder.index(card[0]))
     return value
 
 
@@ -255,6 +257,8 @@ def findHandValue(cards):
     
     for index,option in enumerate(options):
         if option:
+            #royalflush has lowest index so we invert values 
+            #bigger number means better hand 
             return (8 - index) + highCard(option)
     return highCard(cards)
 

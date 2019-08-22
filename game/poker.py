@@ -53,7 +53,6 @@ class Game(object):
         :returns: TODO
 
         """
-        self.dealer.clearCards()
         self.dealer.buildDeck()
         self.dealer.shuffle()
         return self
@@ -124,6 +123,19 @@ class Game(object):
         for player in self.dealer.players:
             player.clearDebt()
         return self
+    
+    def endGame(self):
+        """
+        Clear players list, removes debt and recreates deck
+
+        :returns: TODO
+
+        """
+        self.dealer.deck = []
+        self.dealer.clearCards()
+        self.dealer.cleanPlayers() 
+        self.clearPlayersDebt()
+        return self
 
     def showdown(self):
         """
@@ -138,16 +150,9 @@ class Game(object):
             printouts.cards(player.hand)
 
         winners = self.dealer.chooseWinner(self.players)
-        
-        for p in self.players:
-            print(p.name, p.handValue)
         x = [winner.name for winner in winners]
         printouts.roundWinners(x)
         self.dealer.givePot(winners)
-        
-        self.dealer.cleanPlayers()
-        self.clearPlayersDebt()
-        input("Press Enter to continue.")
         return self
 
     def cardOnTable(self, phase):
@@ -228,7 +233,11 @@ def main():
         #Showdown
         print("\n\t\tShowdown\n")
         game.showdown()
+        
+        game.endGame()
 
+        input("Press Enter to continue.") 
+        
         game.rounds += 1
         
         #print(game.dealer.chooseWinner())
