@@ -192,7 +192,7 @@ class EasyBot(Player):
                     5: self.allin,
                     }
         while True:
-            x = random()
+            x = 0.85#random()
             if self.bet == -1:
                 if x <= 0.5:
                     action = 4

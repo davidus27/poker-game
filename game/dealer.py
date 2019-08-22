@@ -140,7 +140,7 @@ class Dealer(object):
         """
         handValues = []
         for player in players:
-            handValues.append(findHandValue(self.listCards(player)), self.players.index(player))
+            handValues.append((findHandValue(self.listCards(player)), self.players.index(player)))
         return handValues
 
     def chooseWinner(self, players):
@@ -152,7 +152,7 @@ class Dealer(object):
         handValues = self.calculateHandValues(players)
         #maxValue = max(handValues)
         handValues.sort(reverse = True)
-        winningPlayers = self.players[0]
+        winningPlayers = [players[0]]
         #  Create ellegant and easy to understand function for adding players to the list with same values:  <08-08-19, dave> # 
         for index,value in enumerate(handValues):
             if value[0] == handValues[index+1][0]:
@@ -160,34 +160,15 @@ class Dealer(object):
             else:
                 return winningPlayers
         return winningPlayers
-        """
-        if handValues[index][0] == handValues[index+1][0]:
-            winningPlayers.append(self.players[i])
-        for value,index in handValues:
-            if 
-        for index,value in enumerate(handValues):
-            if value == maxValue:
-                
-                winningPlayers.append(self.players[index])
-                indexMaxValues.append(handValues.index(maxValue))
-        return indexMaxValues
-        """
-    #lepsia
+    
     def givePot(self,players):
         """
         Gives the pot to the winner(s)
         :returns: TODO
 
         """
+        prize = self.pot/len(players)
         for i in players:
-            money += self.pot/len(index)
+            i.money += prize
         self.pot = 0.0
     
-    def givePot(self,index):
-        """
-        Gives the pot to the winner(s)
-        :returns: TODO
-
-        """
-        for i in index:
-            self.players[i].money += self.pot/len(index)

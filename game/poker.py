@@ -114,6 +114,7 @@ class Game(object):
                 printouts.cards(table)
                 print()
         return self
+
     def clearPlayersDebt(self):
         """
         Clears deposit and bet to all players
@@ -138,7 +139,7 @@ class Game(object):
 
         self.dealer.cleanPlayers()
         winners = self.dealer.chooseWinner(self.players)
-        x = [self.players[name].name for name in winners]
+        x = [winner.name for winner in winners]
         printouts.roundWinners(x)
         self.dealer.givePot(winners)
 
