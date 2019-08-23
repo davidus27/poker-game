@@ -79,7 +79,7 @@ class Game(object):
 
         """
         while True:
-            for index,player in enumerate(self.players):
+            for index,player in enumerate(self.players[:]):
                 bet = player.options()
                 x = (index + 1) % len(self.players)
                 
@@ -213,7 +213,7 @@ def main():
         #Preflop
         phase = "Preflop"
         game.oneRound(phase)
-        if len(game.players) != 1 and game.players[0].bet != -1:
+        if game.players[0].bet != -1:
 
             #Flop
             phase = "Flop"
@@ -233,8 +233,11 @@ def main():
         #Showdown
         print("\n\t\tShowdown\n")
         game.showdown()
-        
         game.endGame()
+        if len(game.dealer.players) == 1:
+            print("The winner is:", game.dealer.players[0].name)
+            print("Money: ", game.dealer.players[0].money)
+            break
 
         input("Press Enter to continue.") 
         

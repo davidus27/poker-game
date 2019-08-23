@@ -100,7 +100,7 @@ class Dealer(object):
         return self
   
     def cleanPlayers(self):
-        for player in self.players:
+        for index,player in enumerate(self.players[:]):
             if player.money == 0:
                 self.players.remove(player)
     
