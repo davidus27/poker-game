@@ -11,7 +11,7 @@ Description: We need to create a "Dealer" for a game so we can
 
 
 import player
-from detector import findHandValue
+from detector import sortCards,findHandValue
 import random
 
 
@@ -127,7 +127,8 @@ class Dealer(object):
 
         """
         for player in players:
-            player.handValue = findHandValue(self.listCards(player))
+            cards = sortCards(self.listCards(player))
+            player.handValue = findHandValue(cards)
         return players
 
     def chooseWinner(self, players):
