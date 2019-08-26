@@ -118,6 +118,16 @@ class Dealer(object):
                self.players[i].name +=str(i)
         return self
 
+    def listPlayingCards(self, cards):
+        """
+        Lists the players working cards (Player's hand + kickers)
+
+        :cards: TODO
+        :returns: TODO
+
+        """
+        return (cards + sorted(self.tableCards, key = lambda a: a[0], reverse = True))[:5]
+    
     def calculateHandValues(self, players):
         """
         Creates a list of hand values of everybody playing

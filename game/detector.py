@@ -87,7 +87,6 @@ def highCard(cards):
         value += 0.01**(index+1) * (cardsOrder.index(card[0]))
     return value
 
-
 #  override without histogram:  <23-08-19, yourname> # 
 def pair(histogram, cards):
     """
@@ -102,7 +101,6 @@ def pair(histogram, cards):
     return False
 
 
-#  not working correctly, change it without histogram:  <23-08-19, yourname> # 
 def twoPairs(histogram, cards):
     """
     Two different pairs
@@ -114,7 +112,7 @@ def twoPairs(histogram, cards):
     for i in histogram:
         if histogram[i] == 1:
             pack.append(find(cards, i))
-    return pack if len(pack) == 4 else False
+    return pack if len(pack) == 2 else False
 
 
 def threeOfKind(histogram, cards):
