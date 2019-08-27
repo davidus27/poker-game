@@ -55,8 +55,6 @@ class Dealer(object):
             if diff:
                 self.players[self.players.index(i)+1].diff = diff 
         return self
-         
-
             
     def dealCard(self):
         """
@@ -123,11 +121,13 @@ class Dealer(object):
         Lists the players working cards (Player's hand + kickers)
 
         :cards: TODO
-        :returns: TODO
+        :returns: best possible hand with kickers
 
         """
-        return (cards + sorted(self.tableCards, key = lambda a: a[0], reverse = True))[:5]
-    
+        kickers = sorted(self.tableCards, key = lambda a: a[0], reverse = True)
+        return (cards + kickers)[:5] 
+        #  change it to the detector function for finding best high card possible:  <26-08-19>, dave> 
+        #  update sorting so it can sort through all cards:  <26-08-19, yourname> # 
     def calculateHandValues(self, players):
         """
         Creates a list of hand values of everybody playing

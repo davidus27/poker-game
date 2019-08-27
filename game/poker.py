@@ -148,7 +148,6 @@ class Game(object):
         for player in self.players:
             print(player.name, "")
             printouts.cards(player.hand)
-
         winners = self.dealer.chooseWinner(self.players)
         x = [winner.name for winner in winners]
         printouts.roundWinners(x)
