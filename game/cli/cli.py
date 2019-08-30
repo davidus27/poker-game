@@ -1,11 +1,9 @@
 """
-File: printouts.py
+File: cli.py
 Author: dave
 Github: https://github.com/davidus27
 Description: The CLI of the game on terminal. Collects input from the player and sends it to the main game logic (poker.py)
 """
-
-suits = {"Spades" : "♠" , "Clubs" : "♣" , "Diamonds" : "♦" , "Hearts": "♥"}
    
 def nameQuest():
     """
@@ -25,6 +23,23 @@ def diffQuest():
     return x if x != "" else "easy"
 
 
+def allinOrFold():
+    """
+    The warning that player can only go allin or fold
+    :returns: TODO
+
+    """
+    while True:
+        print("Choose your option:")
+        print("\t1) All-in")
+        print("\t2) Fold")
+        print("\t0) Exit")
+        print("[0-2]")
+        try:
+            return int(input(">")) % 3
+        except:
+            print("You need to put number.")
+    
 
 def info(name, money):
     """
@@ -36,87 +51,19 @@ def info(name, money):
     print("Name:{}".format(name))
     print("Balance:{}".format(money))
 
-def firstLine(cards):
-    """
-    For every card creates first line of the ascii card
-    :returns: TODO
-
-    """
-    for i in cards:
-        print("    ", end = "")
-        print(" _______ ", end = "")
-    print()
-
-def secondLine(cards):
-    """
-    Creates for each card second line which shows the value in left corner
-    :cards: TODO
-    :returns: TODO
-
-    """
-    for i in cards:
-        print("    ", end= "")
-        if type(i[0]) == type(""):
-            print("|{0}      |".format(i[0][0]), end="")
-        elif i[0] == 10:
-            print("|{0}     |".format(i[0]), end="")
-        else:
-            print("|{0}      |".format(i[0]), end="")
-    print()
-
-def middleLine(cards):
-    """
-    Middle lines contain suit in the middle of card ascii
-    :arg1: TODO
-    :returns: TODO
-    """
-    for i in cards:
-        print("    ", end="")
-        print("|   {0}   |".format(suits[i[1]]), end="")
-    print()
-
-
-def lastLine(cards):
-    """
-    Last line creates ending seperation and number in right corner
-    """
-    for i in cards:
-        print("    ", end = "")
-        if i[0] == 10:
-            print("|_____{0}|".format(i[0]), end="")
-        elif type(i[0]) == type(""):
-           print("|______{0}|".format(i[0][0]), end="")
-        else:
-           print("|______{0}|".format(i[0]), end="")
-    print()
-
-def cards(cards):
-    """
-    Prints out cards of the player in the CLI-like way
-    :arg1: TODO
-    :returns: TODO
-
-    """
-    firstLine(cards)
-    secondLine(cards)
-    middleLine(cards)
-    middleLine(cards)
-    middleLine(cards)
-    lastLine(cards)
-
 def raising(minimum, maximum):
     """
+    Decorator
     Asks the player how much will he raise the pot
     :returns: TODO
 
     """
-    print("How much do you want to raise [{0}-{1}]: ".format(maximum, minimum))
-    #raised = int(input())
     #return raised if raised == type(int) and raised >= minimal and raised <= maximum else False
-    return int(input())
+    return int(input("How much do you want to raise [{0}-{1}]: ".format(maximum, minimum)))
 
 def numQuest():
     """
+    Decorator
     Asks about number of players
     :returns: numPlayers 
 
@@ -140,6 +87,7 @@ def numQuest():
  
 def optionsInput():
         """
+        Decorator
         Prints out the options of the player
 
         :returns: users option as a number
@@ -153,7 +101,7 @@ def optionsInput():
             print("\t4) Fold")
             print("\t5) All-in")
             print("\t0) Exit")
-            print("[1-5]")
+            print("[0-5]")
             try:
                 return int(input(">")) % 6
             except:

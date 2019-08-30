@@ -5,7 +5,7 @@ Github:https://github.com/davidus27
 Description:Player and variations of bots.
 """
 from random import random, randint
-from printouts import optionsInput, raising
+from cli import optionsInput, raising
 from sys import exit
 from os import system
 
@@ -148,76 +148,9 @@ class Player(object):
             action = optionsInput()
             choosed = options[action]()
             if self.bet == -1:
-                print("You can only go allin or fold.")
-                if action == 4 or action == 5:
-                    return choosed
-                else:
-                    print("Incorrect")
+                    return allinOrFold()
             else:
                 if choosed is not False:
                     return choosed
                 else:
                     continue
-
-class EasyBot(Player):
-
-    """
-    Easy to compete player
-    Selects randomly between his options
-    """
-
-    def __init__(self):
-       """TODO: to be defined1. """
-       Player.__init__(self)
-
-    def raising(self):
-        """
-        Function for getting random input
-        :returns: TODO
-
-        """
-        print(self.money, self.debt)
-        return randint(1, self.money - self.debt) if self.money > self.debt else 0.0 
-
-    def options(self):
-        """
-        Gives all options to the player
-        :action: input of the player
-        :returns: used function
-
-        """
-        options = {1: self.checkBet ,
-                    2: self.callBet , 
-                    3: self.raiseBet , 
-                    4: self.foldBet , 
-                    5: self.allin,
-                    }
-        while True:
-            x = 0.85#random()
-            if self.bet == -1:
-                if x <= 0.5:
-                    action = 4
-                else:
-                    action = 5
-            else:
-                if x <= 0.005:
-                    action = 4
-
-                if x <= 0.45:
-                    action = 1
-
-                elif x <= 0.85:
-                    action = 2
-
-                elif x <= 0.995:
-                    action = 3
-
-                elif x <= 1.0:
-                    action = 5
-            
-            choosen = options[action]()
-            if choosen is not False:
-                return choosen
-            else:
-                continue
-

@@ -6,7 +6,7 @@ Description: Game is the main Object implementing all the necessary tools for pl
                         RUNS THE WHOLE PROGRAM!
 """
 import dealer
-import printouts
+import cli
 import detector
 import os
 class Game(object):
@@ -21,10 +21,10 @@ class Game(object):
 
 
     def createPlayers(self):
-        self.dealer.createPlayers(name = printouts.nameQuest(),
-                                  numPlayers = printouts.numQuest(),
+        self.dealer.createPlayers(name = cli.nameQuest(),
+                                  numPlayers = cli.numQuest(),
                                   money = 500,
-                                  difficulty = printouts.diffQuest()
+                                  difficulty = cli.diffQuest()
                                   )
         return self.dealer.players
 
@@ -104,13 +104,13 @@ class Game(object):
 
         """
         if type(self.players[0]) == dealer.player.Player:
-            printouts.info(self.dealer.players[0].name, self.dealer.players[0].money)
+            cli.info(self.dealer.players[0].name, self.dealer.players[0].money)
             print("Your cards:")
-            printouts.cards(self.dealer.players[0].hand)
+            cli.cards(self.dealer.players[0].hand)
             print()
             if table:
                 print("Community cards:")
-                printouts.cards(table)
+                cli.cards(table)
                 print()
         return self
 
@@ -144,13 +144,13 @@ class Game(object):
 
         """
         print("Community cards:")
-        printouts.cards(self.dealer.tableCards)
+        cli.cards(self.dealer.tableCards)
         for player in self.players:
             print(player.name, "")
-            printouts.cards(player.hand)
+            cli.cards(player.hand)
         winners = self.dealer.chooseWinner(self.players)
         x = [winner.name for winner in winners]
-        printouts.roundWinners(x)
+        cli.roundWinners(x)
         self.dealer.givePot(winners)
         return self
 
