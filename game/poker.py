@@ -21,11 +21,19 @@ class Game(object):
 
 
     def createPlayers(self):
+#        self.dealer.createPlayers(name = cli.nameQuest(),
+#                                  numPlayers = cli.numQuest(),
+#                                  money = 500,
+#                                  difficulty = cli.diffQuest()
+#                                  )
+#
         self.dealer.createPlayers(name = cli.nameQuest(),
                                   numPlayers = cli.numQuest(),
                                   money = 500,
                                   difficulty = cli.diffQuest()
                                   )
+
+
         return self.dealer.players
 
     def giveCards(self):
