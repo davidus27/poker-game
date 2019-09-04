@@ -1,6 +1,6 @@
 import dealer
 
-class CardControlFlow(Dealer):
+class CardControlFlow(dealer.Dealer):
     def __init_(self):
         super().__init__(self)
 

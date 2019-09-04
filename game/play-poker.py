@@ -5,10 +5,13 @@ Github: https://github.com/davidus27
 Description: Game is the main Object implementing all the necessary tools for playing. Game is created in function main()
                         RUNS THE WHOLE PROGRAM!
 """
-import dealer
-import cli
-import detector
+import userinterface
 import os
+import poker
+#import detector
+#import dealer
+
+
 class Game(object):
     """
     Creates players based on inputs on call.
@@ -16,7 +19,7 @@ class Game(object):
     def __init__(self):
         self.rounds = 1
         self.players = []
-        self.dealer = dealer.Dealer()
+        self.dealer = poker.dealer.Dealer()
 
 
 

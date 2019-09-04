@@ -1,5 +1,5 @@
 """
-File: cli.py
+File: questions.py
 Author: dave
 Github: https://github.com/davidus27
 Description: The CLI of the game on terminal. Collects input from the player and sends it to the main game logic (poker.py)
@@ -107,18 +107,4 @@ def optionsInput():
             except:
                 print("You need to put number.")
 
-def roundWinners(names):
-    """
-    Shows the winner(s)
 
-    :index: TODO
-    :returns: TODO
-
-    """
-    if len(names) == 1:
-        print("The winner is ",names[0])
-    else:
-        print("Winners are: ", end="")
-        for name in names:
-            print(name, ", ",end="")
-        print()

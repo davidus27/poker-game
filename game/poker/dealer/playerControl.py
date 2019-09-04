@@ -1,7 +1,7 @@
 import dealer
-from detector import sortCards,findHandValue
+#from detector import sortCards,findHandValue
 
-class PlayerControlFlow(Dealer):
+class PlayerControlFlow(dealer.Dealer):
     def __init__(self):
         super().__init__(self)
     
