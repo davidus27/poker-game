@@ -5,11 +5,10 @@ Github: https://github.com/davidus27
 Description: Game is the main Object implementing all the necessary tools for playing. Game is created in function main()
                         RUNS THE WHOLE PROGRAM!
 """
-import userinterface
+import ui
 import os
-import poker
-#import detector
-#import dealer
+import detector
+import dealer
 
 
 class Game(object):
@@ -19,21 +18,21 @@ class Game(object):
     def __init__(self):
         self.rounds = 1
         self.players = []
-        self.dealer = poker.dealer.Dealer()
+        self.dealer = dealer.Dealer()
 
 
 
     def createPlayers(self):
-#        self.dealer.createPlayers(name = cli.nameQuest(),
-#                                  numPlayers = cli.numQuest(),
+#        self.dealer.createPlayers(name = ui.nameQuest(),
+#                                  numPlayers = ui.numQuest(),
 #                                  money = 500,
-#                                  difficulty = cli.diffQuest()
+#                                  difficulty = ui.diffQuest()
 #                                  )
 #
-        self.dealer.createPlayers(name = cli.nameQuest(),
-                                  numPlayers = cli.numQuest(),
+        self.dealer.createPlayers(name = ui.nameQuest(),
+                                  numPlayers = ui.numQuest(),
                                   money = 500,
-                                  difficulty = cli.diffQuest()
+                                  difficulty = ui.diffQuest()
                                   )
 
 
@@ -115,13 +114,13 @@ class Game(object):
 
         """
         if type(self.players[0]) == dealer.player.Player:
-            cli.info(self.dealer.players[0].name, self.dealer.players[0].money)
+            ui.info(self.dealer.players[0].name, self.dealer.players[0].money)
             print("Your cards:")
-            cli.cards(self.dealer.players[0].hand)
+            ui.cards(self.dealer.players[0].hand)
             print()
             if table:
                 print("Community cards:")
-                cli.cards(table)
+                ui.cards(table)
                 print()
         return self
 
@@ -155,13 +154,13 @@ class Game(object):
 
         """
         print("Community cards:")
-        cli.cards(self.dealer.tableCards)
+        ui.cards(self.dealer.tableCards)
         for player in self.players:
             print(player.name, "")
-            cli.cards(player.hand)
+            ui.cards(player.hand)
         winners = self.dealer.chooseWinner(self.players)
         x = [winner.name for winner in winners]
-        cli.roundWinners(x)
+        ui.roundWinners(x)
         self.dealer.givePot(winners)
         return self
 

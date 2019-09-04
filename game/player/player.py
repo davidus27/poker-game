@@ -5,7 +5,7 @@ Github:https://github.com/davidus27
 Description:Player and variations of bots.
 """
 from random import random, randint
-from cli import optionsInput, raising
+#from cli import optionsInput, raising
 from sys import exit
 from os import system
 

@@ -1,4 +1,4 @@
-import dealer
+import dealer.dealer as dealer
 
 class CardControlFlow(dealer.Dealer):
     def __init_(self):

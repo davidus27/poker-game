@@ -2,7 +2,7 @@
 # vim: set fileencoding=utf-8 :
 
 """
-File: dealer.py
+File: controller.py
 Author: dave
 Github: https://github.com/davidus27
 Description: We need to create a "Dealer" for a game so we can 
@@ -10,7 +10,7 @@ Description: We need to create a "Dealer" for a game so we can
 """
 
 
-#import player
+import player
 import random
 
 

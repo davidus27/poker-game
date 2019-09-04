@@ -1,4 +1,4 @@
-import dealer
+import dealer.dealer as dealer
 #from detector import sortCards,findHandValue
 
 class PlayerControlFlow(dealer.Dealer):
