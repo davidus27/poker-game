@@ -5,9 +5,11 @@ Github:https://github.com/davidus27
 Description:Player and variations of bots.
 """
 from random import random, randint
-#from cli import optionsInput, raising
-from sys import exit
-from os import system
+from os import path as p
+from sys import path,exit
+ui_package = p.abspath("..") + "/ui"
+path.append(ui_package)
+from ui import optionsInput, raising,allInOrFold
 
 class Player(object):
     def __init__(self, name = "Player", money = 500.0):
@@ -15,9 +17,9 @@ class Player(object):
         self.money = money
         self.handValue = 0.0
         self.hand = []
-        self.deposit = 0.0 #how much money player spend in one game
-        self.bet = 0.0 #how much money one player need to get to the game to play
-        #if bet - deposit == check
+        self.deposit = 0.0 #how much money player spent in one game
+        self.bet = 0.0 #how much money is needed for one player to stay in game
+        #bet - deposit is debt
     
     @property
     def debt(self):
@@ -42,7 +44,7 @@ class Player(object):
         """
         Action for player to call a bet on table
 
-        :returns: deposit
+        :returns: (bet, debt)
 
         """
         if not self.debt:
@@ -70,7 +72,7 @@ class Player(object):
     def raiseBet(self):
        """
        Method for raising bets
-       :returns: bet
+       :returns: (bet, debt)
        """
        while True:
             raised = self.raising()
@@ -88,6 +90,7 @@ class Player(object):
                 self.deposit = self.bet
                 print("{} raised bet:{} ".format(self.name,raised))
                 return (self.bet,debt + raised)
+                #  problem with reraising. Fix it somehow!:  <05-09-19, dave> # 
 
     def checkBet(self):
         """
@@ -144,13 +147,21 @@ class Player(object):
                     4: self.foldBet , 
                     5: self.allin,
                     }
+#        while True:
+#            action = optionsInput()
+#            choosed = options[action]()
+#            if self.bet == -1:
+#                    return allInOrFold()
+#            else:
+#                if choosed is not False:
+#                    return choosed
+#                else:
+#                    continue
+
         while True:
             action = optionsInput()
             choosed = options[action]()
-            if self.bet == -1:
-                    return allinOrFold()
+            if choosed:
+                return choosed
             else:
-                if choosed is not False:
-                    return choosed
-                else:
-                    continue
+                continue
