@@ -1,4 +1,4 @@
-import player
+import player.player 
 
 class EasyBot(player.Player):
 
@@ -9,7 +9,7 @@ class EasyBot(player.Player):
 
     def __init__(self):
        """TODO: to be defined1. """
-       super().__init__(self)
+       super().__init__()
 
     def raising(self):
         """

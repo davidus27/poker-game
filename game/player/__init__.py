@@ -1,2 +1,2 @@
-from .player import Player
-from .easybot_player import EasyBot
+from player.player import Player
+from player.easybot_player import EasyBot
