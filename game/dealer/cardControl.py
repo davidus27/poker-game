@@ -1,8 +1,23 @@
-import dealer.dealer as dealer
+#!/usr/bin/python
+# vim: set fileencoding=utf-8 :
 
-class CardControlFlow(dealer.Dealer):
-    def __init_(self):
-        super().__init__(self)
+"""
+File: cardControl.py
+Author: dave
+Github: https://github.com/davidus27
+Description: We need to create a "Dealer" for a game so we can 
+    easily manage a pot (money on a table) cards on a table, cards on hands,shuffling and who wins.
+"""
+
+from dealer.detector import sortCards,findHandValue
+import random
+
+class CardControl(object):
+    
+    def __init__(self):
+        self.deck = []
+        self.tableCards = []
+
 
     def buildDeck(self):
         """
@@ -26,25 +41,13 @@ class CardControlFlow(dealer.Dealer):
         return self.deck.pop()
 
 
-    def round(self):
-        """
-        Questions every player which option will be choosen
-        :returns: TODO
-
-        """
-        for i in self.players:
-            diff = i.options()
-            if diff:
-                self.players[self.players.index(i)+1].diff = diff 
-        return self
-            
-    def dealCard(self):
+    def dealCard(self, players):
         """
         Deals cards to everyone
         :returns: self
 
         """
-        for i in self.players:
+        for i in players:
             i.hand.append(self.drawCard())
         return self 
 
@@ -68,14 +71,38 @@ class CardControlFlow(dealer.Dealer):
         """
         return self.tableCards + player.hand
 
-    def clearCards(self):
+    def clearCards(self, players):
         """
         Clear all played cards
         :returns: TODO
 
         """
         self.tableCards = []
-        for index,player in enumerate(self.players):
-            self.players[index].hand = []
+        for player in players:
+            player.hand = []
         return self
- 
+
+    def listPlayingCards(self, player):
+        """
+        Lists the players working cards (Player's hand + kickers)
+
+        :cards: TODO
+        :returns: best possible hand with kickers
+
+        """
+        kickers = self.listCards(player)
+        return (player.hand + kickers)[:5] 
+    
+  
+    def calculateHandValues(self, players):
+        """
+        Creates a list of hand values of everybody playing
+
+        :players: TODO
+        :returns: TODO
+
+        """
+        for player in players:
+            cards = sortCards(self.listCards(player))
+            player.handValue = findHandValue(cards)
+        return players
