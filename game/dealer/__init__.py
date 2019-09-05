@@ -1,5 +1,2 @@
-# __init__.py 
+# __init__.py
 from dealer.dealer import Dealer
-from dealer.playerControl import *
-from dealer.cardControl import *
-
