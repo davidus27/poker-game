@@ -6,10 +6,8 @@ Description: Game is the main Object implementing all the necessary tools for pl
                         RUNS THE WHOLE PROGRAM!
 """
 import ui
-import os
-import detector
 import dealer
-
+from player import Player
 
 class Game(object):
     """
@@ -20,52 +18,13 @@ class Game(object):
         self.players = []
         self.dealer = dealer.Dealer()
 
-
-
     def createPlayers(self):
-#        self.dealer.createPlayers(name = ui.nameQuest(),
-#                                  numPlayers = ui.numQuest(),
-#                                  money = 500,
-#                                  difficulty = ui.diffQuest()
-#                                  )
-#
-        self.dealer.createPlayers(name = ui.nameQuest(),
-                                  numPlayers = ui.numQuest(),
-                                  money = 500,
-                                  difficulty = ui.diffQuest()
-                                  )
+        name = ui.nameQuest()
+        numPlayers = ui.numQuest()
+        money = 500
+        difficulty = ui.diffQuest()
 
-
-        return self.dealer.players
-
-    def giveCards(self):
-        """
-        gives cards.
-        :returns: TODO
-
-        """
-        self.dealer.dealCard()
-        self.dealer.dealCard()
-
-    def question(self):
-        """
-        Questions every player which option will be choosen
-        :returns: TODO
-
-        """
-        for i in self.players:
-            i.options()
-        return self
- 
-    def gameOn(self):
-        """
-        Clears all the cards, create cards and shuffles them
-        :returns: TODO
-
-        """
-        self.dealer.buildDeck()
-        self.dealer.shuffle()
-        return self
+        return self.dealer.playerControl.createPlayers(name,numPlayers, money, difficulty)
 
     def controlDeposit(self):
         """
@@ -75,7 +34,7 @@ class Game(object):
 
         """
         deposit = self.players[0].deposit #reference
-        for player in self.players:
+        for player in self.players[:1]:
             if player.deposit == deposit:
                 continue
             else:
@@ -90,17 +49,19 @@ class Game(object):
         """
         while True:
             for index,player in enumerate(self.players[:]):
-                bet = player.options()
-                x = (index + 1) % len(self.players)
-                
-                if bet[1] == -1:
-                    self.players[x].bet = bet[0]
+                record = player.options()
+                index = (index + 1) % len(self.players)
+                               
+                self.players[index].bet = record[0]
+                if record[1] == -1:
                     self.players.remove(player)
                 else:
-                    self.players[x].bet = bet[0]
-                    self.dealer.pot += bet[1]
-                print("Bet:{}\nDeposit:{}".format(player.bet,player.deposit))
-                print("Pot:", self.dealer.pot)
+                    self.dealer.playerControl.pot += record[1]
+         
+                print(record)
+                print("Pot: ", self.dealer.playerControl.pot)
+                
+
             if self.controlDeposit():
                 break
             else:
@@ -113,38 +74,16 @@ class Game(object):
         :returns: TODO
 
         """
-        if type(self.players[0]) == dealer.player.Player:
-            ui.info(self.dealer.players[0].name, self.dealer.players[0].money)
+        #nedobre
+        if type(self.players[0]) == Player:
+            ui.info(self.dealer.playerControl.players[0].name, self.dealer.playerControl.players[0].money)
             print("Your cards:")
-            ui.cards(self.dealer.players[0].hand)
+            ui.cards(self.dealer.playerControl.players[0].hand)
             print()
             if table:
                 print("Community cards:")
                 ui.cards(table)
                 print()
-        return self
-
-    def clearPlayersDebt(self):
-        """
-        Clears deposit and bet to all players
-        :returns: TODO
-
-        """
-        for player in self.dealer.players:
-            player.clearDebt()
-        return self
-    
-    def endGame(self):
-        """
-        Clear players list, removes debt and recreates deck
-
-        :returns: TODO
-
-        """
-        self.dealer.deck = []
-        self.dealer.clearCards()
-        self.dealer.cleanPlayers() 
-        self.clearPlayersDebt()
         return self
 
     def showdown(self):
@@ -154,44 +93,52 @@ class Game(object):
 
         """
         print("Community cards:")
-        ui.cards(self.dealer.tableCards)
+        ui.cards(self.dealer.cardControl.tableCards)
         for player in self.players:
             print(player.name, "")
             ui.cards(player.hand)
         winners = self.dealer.chooseWinner(self.players)
         x = [winner.name for winner in winners]
         ui.roundWinners(x)
-        self.dealer.givePot(winners)
+        self.dealer.playerControl.givePot(winners)
         return self
 
-    def cardOnTable(self, phase):
+    def startPhase(self, phase):
         """
-        Three cards on table while flop
-        :returns: TODO
-
-        """
-        if phase == "Preflop":
-            self.dealer.drawTable()
-            self.dealer.drawTable()
-            self.dealer.drawTable()
-        elif phase == "River":
-            pass
-        elif phase == "All":
-            self.dealer.drawTable()
-            self.dealer.drawTable()
-        else:
-            self.dealer.drawTable()
-
-    def oneRound(self, phase):
-        """
-        Creates flop part of easy game
+        Goes through one phase part of easy game
         :returns: TODO
 
         """
         print("\n\t\t{}\n".format(phase))
-        self.printSituation(self.dealer.tableCards)
+        self.printSituation(self.dealer.cardControl.tableCards)
         self.round()
-        self.cardOnTable(phase)
+        self.dealer.cardOnTable(phase)
+        
+    
+    def eachRound(self):
+        """TODO: Docstring for function.
+
+        :returns: TODO
+
+        """
+        #Preflop
+        self.startPhase("Preflop")
+        if self.players[0].bet != -1:
+            #Flop
+            self.startPhase("Flop")
+            
+        if self.players[0].bet != -1:
+            #Turn
+            self.startPhase("Turn")
+
+        if self.players[0].bet != -1:
+            #River
+            self.startPhase("River")
+        
+        else:
+            #All-in case
+            self.dealer.cardOnTable("All")
+
 
 def main():
     """ 
@@ -199,7 +146,6 @@ def main():
     """
     game = Game()
     print("Let's play Texas Hold'em!\n")
-    #game.askQuestions()
     allPlayers = game.createPlayers()
     while True:
         #The simple game functioning:
@@ -215,46 +161,22 @@ def main():
         #  deleting players that loose:  <29-07-19, dave> # 
         game.players = list(allPlayers)
         
-        game.gameOn()
-        game.giveCards()
-        print("\n\t\tRound", game.rounds)
-
-        #Preflop
-        phase = "Preflop"
-        game.oneRound(phase)
-        if game.players[0].bet != -1:
-
-            #Flop
-            phase = "Flop"
-            game.oneRound(phase)
-            
-            #Turn
-            phase = "Turn"
-            game.oneRound(phase)
-
-            #River
-            phase = "River"
-            game.oneRound(phase)
-            
-        else:
-            phase = "All"
-            game.cardOnTable(phase)
+        game.dealer.gameOn()
+        game.dealer.giveCards()
+        game.eachRound()
         #Showdown
         print("\n\t\tShowdown\n")
         game.showdown()
-        game.endGame()
-        if len(game.dealer.players) == 1:
-            print("The winner is:", game.dealer.players[0].name)
-            print("Money: ", game.dealer.players[0].money)
+        game.dealer.endGame()
+        if len(game.dealer.playerControl.players) == 1:
+            print("Final winner is:", game.dealer.playerControl.players[0].name)
+            print("Money: ", game.dealer.playerControl.players[0].money)
             break
 
         input("Press Enter to continue.") 
         
         game.rounds += 1
         
-        #print(game.dealer.chooseWinner())
-
-
 
 if __name__ == "__main__":
     main()
