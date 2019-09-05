@@ -1,4 +1,5 @@
 import player.player 
+from random import random,randint
 
 class EasyBot(player.Player):
 
@@ -34,7 +35,7 @@ class EasyBot(player.Player):
                     5: self.allin,
                     }
         while True:
-            x = 0.85#random()
+            x = random()
             if self.bet == -1:
                 if x <= 0.5:
                     action = 4
@@ -57,7 +58,7 @@ class EasyBot(player.Player):
                     action = 5
             
             choosen = options[action]()
-            if choosen is not False:
+            if choosen:
                 return choosen
             else:
                 continue

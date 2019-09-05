@@ -59,14 +59,22 @@ class Dealer(object):
             self.cardControl.drawTable()
             self.cardControl.drawTable()
             self.cardControl.drawTable()
-        elif phase == "River":
+
+        elif phase == "Flop" or phase == "River":
+            self.cardControl.drawTable()
+        elif phase == "Turn":
             pass
-        elif phase == "All":
+
+        elif phase == "All-flop":
             self.cardControl.drawTable()
             self.cardControl.drawTable()
-        else:
+
+        elif phase == "All-turn":
             self.cardControl.drawTable()
-           
+        return True
+
+
+
     def chooseWinner(self, players):
         """
         Decides who wins the prize by sorting players by their handValues
@@ -77,10 +85,9 @@ class Dealer(object):
         """
         #calculate hand values to everyone
         players = self.cardControl.calculateHandValues(players)
-        #printing for lookup
+
         for player in players:
-            print(player.name, player.handValue)
-        
+            print(player.name, ":", player.handValue)
         #sort players by hand value
         players = sorted(players, key = lambda x: x.handValue, reverse = True)
         #first is the winner

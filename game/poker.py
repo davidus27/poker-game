@@ -3,7 +3,6 @@ File: poker.py
 Author: dave
 Github: https://github.com/davidus27
 Description: Game is the main Object implementing all the necessary tools for playing. Game is created in function main()
-                        RUNS THE WHOLE PROGRAM!
 """
 import ui
 import dealer
@@ -29,7 +28,6 @@ class Game(object):
     def controlDeposit(self):
         """
         checks if there are any differences
-        :arg1: TODO
         :returns: TODO
 
         """
@@ -74,7 +72,6 @@ class Game(object):
         :returns: TODO
 
         """
-        #nedobre
         if type(self.players[0]) == Player:
             ui.info(self.dealer.playerControl.players[0].name, self.dealer.playerControl.players[0].money)
             print("Your cards:")
@@ -86,6 +83,15 @@ class Game(object):
                 print()
         return self
 
+    def allCards(self):
+        """
+        Prints hands of all players
+        """
+        for player in self.players:
+            print(player.name, "")
+            ui.cards(player.hand)
+        return self
+
     def showdown(self):
         """
         Ending of the round
@@ -94,12 +100,13 @@ class Game(object):
         """
         print("Community cards:")
         ui.cards(self.dealer.cardControl.tableCards)
-        for player in self.players:
-            print(player.name, "")
-            ui.cards(player.hand)
+        self.allCards()
+        
         winners = self.dealer.chooseWinner(self.players)
         x = [winner.name for winner in winners]
         ui.roundWinners(x)
+        for w in winners:
+            ui.printValue(w.handValue)
         self.dealer.playerControl.givePot(winners)
         return self
 
@@ -126,58 +133,21 @@ class Game(object):
         if self.players[0].bet != -1:
             #Flop
             self.startPhase("Flop")
+        else:
+            #allin na turn
+            return self.dealer.cardOnTable("All-flop")
             
         if self.players[0].bet != -1:
             #Turn
             self.startPhase("Turn")
+        else:
+            #allin na turn
+            return self.dealer.cardOnTable("All-turn")
 
         if self.players[0].bet != -1:
             #River
             self.startPhase("River")
-        
         else:
-            #All-in case
-            self.dealer.cardOnTable("All")
-
-
-def main():
-    """ 
-    Work to create game
-    """
-    game = Game()
-    print("Let's play Texas Hold'em!\n")
-    allPlayers = game.createPlayers()
-    while True:
-        #The simple game functioning:
-        #Players bets on preflop (before the release of firt three cards)
-        #First three cards are released
-        #Another beting
-        #Turn-fourth card release
-        #Another bets
-        #River-final card
-        #Last beting
-        #Showdown-cards are showed (if any players are left)
-        
-        #  deleting players that loose:  <29-07-19, dave> # 
-        game.players = list(allPlayers)
-        
-        game.dealer.gameOn()
-        game.dealer.giveCards()
-        game.eachRound()
-        #Showdown
-        print("\n\t\tShowdown\n")
-        game.showdown()
-        game.dealer.endGame()
-        if len(game.dealer.playerControl.players) == 1:
-            print("Final winner is:", game.dealer.playerControl.players[0].name)
-            print("Money: ", game.dealer.playerControl.players[0].money)
-            break
-
-        input("Press Enter to continue.") 
-        
-        game.rounds += 1
-        
-
-if __name__ == "__main__":
-    main()
-
+            #allin na turn
+            return self.dealer.cardOnTable("All-turn")
+            

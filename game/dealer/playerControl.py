@@ -30,7 +30,7 @@ class PlayerControl(object):
     
     def createPlayers(self, name = "Player0", numPlayers=2,money=500.0, difficulty="easy"):
         self.addPlayer(player.Player(name, money))
-        for i in range(1,numPlayers+2):
+        for i in range(1,numPlayers+1):
             if difficulty == "easy":
                self.addPlayer(player.EasyBot())
                self.players[i].name +=str(i)
