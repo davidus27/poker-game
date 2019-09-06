@@ -38,6 +38,8 @@ The value of hand will get number based on the sequence above
 
 Highcard will enumerate decimal places so if two players will have same hand the higher cards will win.
 
+Card format:
+    (number, color)
 """
 
 def createHistogram(cards):
@@ -57,7 +59,7 @@ def createHistogram(cards):
 
     return histogram
 
-def find( cards, value):
+def find(cards, value):
     """
     Returns list of cards with same value
     :cards: haystack
@@ -71,22 +73,21 @@ def find( cards, value):
             pack.append(i)
     return pack
 
-
-def highCard( cards):
+#  not working correctly change it!:  <23-08-19, yourname> # 
+def highCard(cards):
     """
     Finds the high value of cards. From the biggest card to the lowest it increments the decimal place.
 
     :cards: TODO
-    :returns: TODO
+    :returns: float
 
     """
-    value = 0
+    value = 0.0
     for index,card in enumerate(cards):
-        value += 0.01**(index+1) * (cardsOrder.index(card[0])+2)
+        value += 0.01**(index+1) * (cardsOrder.index(card[0]))
     return value
 
-
-
+#  override without histogram:  <23-08-19, yourname> # 
 def pair(histogram, cards):
     """
     Checks if the dictionary has ONE pair
@@ -100,7 +101,6 @@ def pair(histogram, cards):
     return False
 
 
-
 def twoPairs(histogram, cards):
     """
     Two different pairs
@@ -111,8 +111,8 @@ def twoPairs(histogram, cards):
     pack = []
     for i in histogram:
         if histogram[i] == 1:
-            pack += find(cards, i)
-    return pack if len(pack) == 4 else False
+            pack.append(find(cards, i))
+    return pack if len(pack) == 2 else False
 
 
 def threeOfKind(histogram, cards):
@@ -255,6 +255,8 @@ def findHandValue(cards):
     
     for index,option in enumerate(options):
         if option:
-            return (8 - index) + highCard(option)
+            #royalflush has lowest index so we invert values 
+            #bigger number means better hand 
+            return (8 - index) + highCard(cards)
     return highCard(cards)
 
