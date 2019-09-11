@@ -181,6 +181,16 @@ def flush(cards):
     """
     #it will lookup the biggest flush in cards
     suits = ["Spades", "Clubs", "Diamonds", "Hearts"]
+
+    for suit in suits:
+        pack = []
+        for card in cards:
+            if card[1] == suit:
+                pack.append(card)
+        if len(pack) >= 5:
+            return pack
+    return False
+    """
     for i in suits:
         pack=[]
         for j in cards:
@@ -189,7 +199,7 @@ def flush(cards):
             if len(pack) >= 5:
                 return pack
     return False
-
+    """
 
 def fullHouse(histogram, cards):
     """

@@ -32,7 +32,7 @@ class Game(object):
 
         """
         deposit = self.players[0].deposit #reference
-        for player in self.players[:1]:
+        for player in self.players[1:]:
             if player.deposit == deposit:
                 continue
             else:
@@ -46,20 +46,27 @@ class Game(object):
 
         """
         while True:
+            length = len(self.players[:])
             for index,player in enumerate(self.players[:]):
                 record = player.options()
-                index = (index + 1) % len(self.players)
-                               
+                i = index
+                index = (index + 1) % length#len(self.players[:])
+                
                 self.players[index].bet = record[0]
                 if record[1] == -1:
                     self.players.remove(player)
+                    length -= 1
                 else:
                     self.dealer.playerControl.pot += record[1]
-         
+                
+                
+                
+                print("Size: ", length)#len(self.players)) 
+                print("i: ", i) 
+                print("Index:%d\nBet:%d\n" % (index, player.bet))
                 print(record)
                 print("Pot: ", self.dealer.playerControl.pot)
                 
-
             if self.controlDeposit():
                 break
             else:
@@ -134,20 +141,13 @@ class Game(object):
             #Flop
             self.startPhase("Flop")
         else:
-            #allin na turn
+            #allin on flop
             return self.dealer.cardOnTable("All-flop")
             
         if self.players[0].bet != -1:
             #Turn
             self.startPhase("Turn")
         else:
-            #allin na turn
+            #allin on turn
             return self.dealer.cardOnTable("All-turn")
 
-        if self.players[0].bet != -1:
-            #River
-            self.startPhase("River")
-        else:
-            #allin na turn
-            return self.dealer.cardOnTable("All-turn")
-            

@@ -19,7 +19,8 @@ class EasyBot(player.Player):
 
         """
         print(self.money, self.debt)
-        return randint(1, self.money - self.debt) if self.money > self.debt else 0.0 
+        #return randint(1, self.money - self.debt) if self.money > self.debt else 0.0 
+        return randint(1, 1 + int((self.money - self.debt)/3)) if self.money > self.debt else 0.0 
 
     def options(self):
         """
@@ -37,7 +38,7 @@ class EasyBot(player.Player):
         while True:
             x = random()
             if self.bet == -1:
-                if x <= 0.5:
+                if x <= 0.9:
                     action = 4
                 else:
                     action = 5

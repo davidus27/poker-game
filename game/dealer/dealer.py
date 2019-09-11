@@ -62,15 +62,15 @@ class Dealer(object):
 
         elif phase == "Flop" or phase == "Turn":
             self.cardControl.drawTable()
-        elif phase == "River":
-            pass
 
         elif phase == "All-flop":
             self.cardControl.drawTable()
             self.cardControl.drawTable()
+            return True
 
         elif phase == "All-turn":
             self.cardControl.drawTable()
+            return True
         return True
 
 
