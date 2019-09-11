@@ -8,6 +8,7 @@ import ui
 import dealer
 from player import Player
 
+
 class Game(object):
     """
     Creates players based on inputs on call.
@@ -32,7 +33,7 @@ class Game(object):
 
         """
         deposit = self.players[0].deposit #reference
-        for player in self.players[:1]:
+        for player in self.players[1:]:
             if player.deposit == deposit:
                 continue
             else:
@@ -46,21 +47,21 @@ class Game(object):
 
         """
         while True:
-            for index,player in enumerate(self.players[:]):
+            players = self.players[:]
+            for index,player in enumerate(players[:]):
                 record = player.options()
-                index = (index + 1) % len(self.players)
-                               
+                index = (index+1) % len(self.players) 
                 self.players[index].bet = record[0]
                 if record[1] == -1:
-                    self.players.remove(player)
+                    players.remove(player)
                 else:
                     self.dealer.playerControl.pot += record[1]
-         
-                print(record)
-                print("Pot: ", self.dealer.playerControl.pot)
-                
-
-            if self.controlDeposit():
+            
+            self.players = players[:] 
+            
+            if self.isAllIn():
+                break
+            elif self.controlDeposit():
                 break
             else:
                 continue
@@ -121,33 +122,39 @@ class Game(object):
         self.round()
         self.dealer.cardOnTable(phase)
         
-    
+    def isAllIn(self):
+        """
+        Checking all players if someone is allin or not
+        :returns: TODO
+
+        """
+        for player in self.players:
+            if player.bet == -1:
+                return True
+        return False
+
+
+
     def eachRound(self):
         """TODO: Docstring for function.
 
         :returns: TODO
 
         """
+        self.dealer.playerControl.ante(self.rounds)
         #Preflop
         self.startPhase("Preflop")
-        if self.players[0].bet != -1:
+        if self.isAllIn():
+            #allin on flop
+            return self.dealer.cardOnTable("All-flop")
+        else:
             #Flop
             self.startPhase("Flop")
-        else:
-            #allin na turn
-            return self.dealer.cardOnTable("All-flop")
             
-        if self.players[0].bet != -1:
+        if self.isAllIn():
+            #allin on turn
+            return self.dealer.cardOnTable("All-turn")
+        else:
             #Turn
             self.startPhase("Turn")
-        else:
-            #allin na turn
-            return self.dealer.cardOnTable("All-turn")
 
-        if self.players[0].bet != -1:
-            #River
-            self.startPhase("River")
-        else:
-            #allin na turn
-            return self.dealer.cardOnTable("All-turn")
-            

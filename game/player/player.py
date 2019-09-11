@@ -69,13 +69,14 @@ class Player(object):
         return raising(1, self.money-self.debt)
 
 
-    def raiseBet(self):
+    def raiseBet(self, raised = None):
        """
        Method for raising bets
-       :returns: (bet, debt)
+       :returns: (bet, how much player sent to pot now)
        """
        while True:
-            raised = self.raising()
+            if raised == None:
+                raised = self.raising()
             if raised == 0.0:
                 return self.callBet()
             
@@ -83,7 +84,7 @@ class Player(object):
                 return self.allin()
             
             else:
-                self.money -= raised + self.bet
+                self.money -= raised + self.debt
                 bet = self.bet
                 debt = self.debt
                 self.bet += raised
@@ -125,9 +126,10 @@ class Player(object):
        print("{} all in!".format(self.name))
        self.deposit += self.money
        self.bet = -1
+       #self.deposit = -1
        money = self.money
        self.money = 0
-       return (self.bet,money)
+       return (-1,money)
 
     def quit(self):
         print("Exiting program. Hope you will come back again.")
@@ -159,7 +161,10 @@ class Player(object):
 #                    continue
 
         while True:
-            action = optionsInput()
+            if self.bet == -1:
+                action = allInOrFold()
+            else:
+                action = optionsInput()
             choosed = options[action]()
             if choosed:
                 return choosed

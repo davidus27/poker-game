@@ -47,3 +47,14 @@ class PlayerControl(object):
             i.money += prize
         self.pot = 0.0
 
+    def ante(self, rounds):
+        """
+        Function where everyone needs to get fixed price 
+        to the pot on the beggining
+        :returns: TODO
+
+        """
+        price = rounds ** 2
+        for player in self.players:
+            self.pot += player.raiseBet(price)[1]
+

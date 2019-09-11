@@ -25,7 +25,7 @@ class Dealer(object):
         """
         self.cardControl.dealCard(self.playerControl.players)
         self.cardControl.dealCard(self.playerControl.players)
- 
+    
     def gameOn(self):
         """
         Clears all the cards, create cards and shuffles them
@@ -60,17 +60,17 @@ class Dealer(object):
             self.cardControl.drawTable()
             self.cardControl.drawTable()
 
-        elif phase == "Flop" or phase == "River":
+        elif phase == "Flop" or phase == "Turn":
             self.cardControl.drawTable()
-        elif phase == "Turn":
-            pass
 
         elif phase == "All-flop":
             self.cardControl.drawTable()
             self.cardControl.drawTable()
+            return True
 
         elif phase == "All-turn":
             self.cardControl.drawTable()
+            return True
         return True
 
 
@@ -86,8 +86,9 @@ class Dealer(object):
         #calculate hand values to everyone
         players = self.cardControl.calculateHandValues(players)
 
-        for player in players:
-            print(player.name, ":", player.handValue)
+        #for player in players:
+        #    print(player.name, ":", player.handValue)
+        
         #sort players by hand value
         players = sorted(players, key = lambda x: x.handValue, reverse = True)
         #first is the winner

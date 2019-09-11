@@ -1,10 +1,11 @@
 import poker
-
+from os import system
 def main():
     """ 
     Work to create game
     """
     game = poker.Game()
+    system("clear")
     print("Let's play Texas Hold'em!\n")
     allPlayers = game.createPlayers()
     while True:
@@ -17,8 +18,7 @@ def main():
         #River-final card
         #Last beting
         #Showdown-cards are showed (if any players are left)
-        
-        #  deleting players that loose:  <29-07-19, dave> # 
+        print("\n\n\tRound #", game.rounds, end="\n\n") 
         game.players = list(allPlayers)
         
         game.dealer.gameOn()
@@ -32,7 +32,9 @@ def main():
             print("Final winner is:", game.dealer.playerControl.players[0].name)
             print("Money: ", game.dealer.playerControl.players[0].money)
             break
-        input("Press Enter to continue.") 
+        input("Press Enter to continue.")
+        system("clear")
+        
         
         game.rounds += 1
         

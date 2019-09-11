@@ -22,12 +22,13 @@ def allInOrFold():
     """
     while True:
         print("Choose your option:")
-        print("\t1) All-in")
-        print("\t2) Fold")
+        print("\t1) Fold")
+        print("\t2) All-in")
         print("\t0) Exit")
         print("[0-2]")
         try:
-            return int(input(">")) % 3
+            reply = int(input(">")) % 3
+            return reply + 3 if reply > 0 else reply
         except:
             print("You need to put number.")
 
