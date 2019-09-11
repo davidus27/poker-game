@@ -19,25 +19,23 @@ Simple Poker game you can play in terminal or cmd prompt.
 Program is written ins Python 3.x. 
 Here is the easy process to download and play the game
 
-``
+```
 $git clone https://github.com/davidus27/pokerGame
-
 $cd pokerGame/game
-
 $python3 main.py
-``
+```
 
 # Linux 
 For easier playing in terminal you just need to give the script permissions to execute:
-``
+```
 $cd pokerGame
 $chmod +x game/main.py
-``
+```
 now you can create alias in your __.bashrc__ file 
 
-``
+```
 alias name='path-to-the-program/pokerGame/game/main.py'
-``
+```
 
 # Windows
 If you are using Windows and want the .exe file you just need to install requirements
