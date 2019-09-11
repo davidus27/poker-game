@@ -69,13 +69,14 @@ class Player(object):
         return raising(1, self.money-self.debt)
 
 
-    def raiseBet(self):
+    def raiseBet(self, raised = None):
        """
        Method for raising bets
        :returns: (bet, how much player sent to pot now)
        """
        while True:
-            raised = self.raising()
+            if raised == None:
+                raised = self.raising()
             if raised == 0.0:
                 return self.callBet()
             

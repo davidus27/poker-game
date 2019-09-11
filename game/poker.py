@@ -8,6 +8,7 @@ import ui
 import dealer
 from player import Player
 
+
 class Game(object):
     """
     Creates players based on inputs on call.
@@ -53,21 +54,14 @@ class Game(object):
                 self.players[index].bet = record[0]
                 if record[1] == -1:
                     players.remove(player)
-                    #index -= 1
                 else:
                     self.dealer.playerControl.pot += record[1]
-                
-                
-                
-                print("Size: ", len(self.players))#len(self.players)) 
-                print("next one: ", self.players[index].name) 
-                print("Index:%d\nBet:%d\n" % (index, player.bet))
-                print(record)
-                print("Pot: ", self.dealer.playerControl.pot)
             
+            self.players = players[:] 
             
-            self.players = players[:]  
-            if self.controlDeposit():
+            if self.isAllIn():
+                break
+            elif self.controlDeposit():
                 break
             else:
                 continue
@@ -128,26 +122,39 @@ class Game(object):
         self.round()
         self.dealer.cardOnTable(phase)
         
-    
+    def isAllIn(self):
+        """
+        Checking all players if someone is allin or not
+        :returns: TODO
+
+        """
+        for player in self.players:
+            if player.bet == -1:
+                return True
+        return False
+
+
+
     def eachRound(self):
         """TODO: Docstring for function.
 
         :returns: TODO
 
         """
+        self.dealer.playerControl.ante(self.rounds)
         #Preflop
         self.startPhase("Preflop")
-        if self.players[0].bet != -1:
-            #Flop
-            self.startPhase("Flop")
-        else:
+        if self.isAllIn():
             #allin on flop
             return self.dealer.cardOnTable("All-flop")
-            
-        if self.players[0].bet != -1:
-            #Turn
-            self.startPhase("Turn")
         else:
+            #Flop
+            self.startPhase("Flop")
+            
+        if self.isAllIn():
             #allin on turn
             return self.dealer.cardOnTable("All-turn")
+        else:
+            #Turn
+            self.startPhase("Turn")
 

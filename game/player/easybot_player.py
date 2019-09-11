@@ -12,7 +12,7 @@ class EasyBot(player.Player):
        """TODO: to be defined1. """
        super().__init__()
 
-    def raising(self):
+    def raising(self, raising = None):
         """
         Function for getting random input
         :returns: TODO
@@ -21,6 +21,19 @@ class EasyBot(player.Player):
         print(self.money, self.debt)
         #return randint(1, self.money - self.debt) if self.money > self.debt else 0.0 
         return randint(1, 1 + int((self.money - self.debt)/3)) if self.money > self.debt else 0.0 
+
+    def checkBet(self):
+        """
+        Checks only if difference between deposit and bet is zero
+        
+        :returns: True/False based on if you can check or not
+        """
+        if self.debt:
+            return False
+        else:
+            print("{} check".format(self.name))
+            return (self.bet,0)
+
 
     def options(self):
         """
