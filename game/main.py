@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import poker
 from os import system
 def main():
