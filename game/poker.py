@@ -46,27 +46,27 @@ class Game(object):
 
         """
         while True:
-            length = len(self.players[:])
-            for index,player in enumerate(self.players[:]):
+            players = self.players[:]
+            for index,player in enumerate(players[:]):
                 record = player.options()
-                i = index
-                index = (index + 1) % length#len(self.players[:])
-                
+                index = (index+1) % len(self.players) 
                 self.players[index].bet = record[0]
                 if record[1] == -1:
-                    self.players.remove(player)
-                    length -= 1
+                    players.remove(player)
+                    #index -= 1
                 else:
                     self.dealer.playerControl.pot += record[1]
                 
                 
                 
-                print("Size: ", length)#len(self.players)) 
-                print("i: ", i) 
+                print("Size: ", len(self.players))#len(self.players)) 
+                print("next one: ", self.players[index].name) 
                 print("Index:%d\nBet:%d\n" % (index, player.bet))
                 print(record)
                 print("Pot: ", self.dealer.playerControl.pot)
-                
+            
+            
+            self.players = players[:]  
             if self.controlDeposit():
                 break
             else:
