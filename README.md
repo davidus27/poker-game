@@ -8,7 +8,6 @@ Texas Hold'em poker is easy terminal game written in Python for educational purp
 * [Rules](#Rules)
 * [Testing](#Testing)
 * [TODO list](#TODO)
-* [UML](#UML)
 * [License](#License)
 
 
@@ -68,10 +67,6 @@ TODO
 - [ ] Changing order of players each round
 - [ ] basic GUI options
 - [ ] saving the game progress over time
-
-
-
-## UML
 
 ## License
 This project is licensed under the GNU General Public License - see the [LICENSE](LICENSE) file for details.
