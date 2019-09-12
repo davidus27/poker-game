@@ -25,7 +25,7 @@ $cd pokerGame/game
 $python3 main.py
 ```
 
-# Linux 
+### Linux 
 For easier playing in terminal you just need to give the script permissions to execute:
 ```
 $cd pokerGame
@@ -37,7 +37,7 @@ now you can create alias in your __.bashrc__ file
 alias name='path-to-the-program/pokerGame/game/main.py'
 ```
 
-# Windows
+### Windows
 If you are using Windows and want the .exe file you just need to install requirements
 ``$pip3 install -r requirements.txt``
 and create executable file 
