@@ -1,4 +1,4 @@
-# pokerGame
+# Texas Hold'em poker
 Texas Hold'em poker is easy terminal game written in Python for educational purposes.
 
 
