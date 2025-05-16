@@ -1,4 +1,6 @@
-def printValue( handValue):
+import math
+
+def printValue(handValue):
     """
     Prints the value of the player's card
 
@@ -18,7 +20,7 @@ def printValue( handValue):
                 9: royalFlush,
             }
     for o in options:
-        if int(handValue) == o:
+        if math.floor(handValue) == o:
             options[o]()
 
 
