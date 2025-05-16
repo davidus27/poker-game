@@ -8,9 +8,9 @@ Github: https://github.com/davidus27
 Description: We need to create a "Dealer" for a game so we can 
     easily manage a pot (money on a table) cards on a table, cards on hands,shuffling and who wins.
 """
-
-from dealer.detector import sortCards,findHandValue
+from .detector import find_best_hand
 import random
+from cards import Card, Suit, Rank
 
 class CardControl(object):
     
@@ -24,11 +24,9 @@ class CardControl(object):
         Creates list of cards.
         Individual cards are tuples with format: (number,color)
         """
-        colors = ["Spades" , "Clubs", "Diamonds", "Hearts"]
-        numbers = [2, 3, 4, 5, 6 ,7 ,8 , 9 ,10,"Jack", "Queen","King", "Ace"]
-        for color in colors:
-            for number in numbers:
-                self.deck.append((number,color))
+        for suit in Suit:
+            for rank in Rank:
+                self.deck.append(Card(rank=rank, suit=suit))
         return self
 
     def shuffle(self):
@@ -103,6 +101,5 @@ class CardControl(object):
 
         """
         for player in players:
-            cards = sortCards(self.listCards(player))
-            player.handValue = findHandValue(cards)
+            player.handValue = find_best_hand(self.listCards(player))
         return players
