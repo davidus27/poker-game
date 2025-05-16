@@ -6,8 +6,8 @@ Github: https://github.com/yourname
 Description: This is elementary class for maintaining players and cards in the game
 """
 
-from dealer.cardControl import CardControl
-from dealer.playerControl import PlayerControl
+from .cardControl import CardControl
+from .playerControl import PlayerControl
 
 class Dealer(object):
 

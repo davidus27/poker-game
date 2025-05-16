@@ -4,9 +4,9 @@ Author: dave
 Github: https://github.com/davidus27
 Description: Game is the main Object implementing all the necessary tools for playing. Game is created in function main()
 """
-import ui
+import ui.cli as ui
 import dealer
-from player import Player
+from player.player import Player
 
 
 class Game(object):
@@ -76,11 +76,11 @@ class Game(object):
         if type(self.players[0]) == Player:
             ui.info(self.dealer.playerControl.players[0].name, self.dealer.playerControl.players[0].money)
             print("Your cards:")
-            ui.cards(self.dealer.playerControl.players[0].hand)
+            ui.print_cards(self.dealer.playerControl.players[0].hand)
             print()
             if table:
                 print("Community cards:")
-                ui.cards(table)
+                ui.print_cards(table)
                 print()
         return self
 
@@ -90,7 +90,7 @@ class Game(object):
         """
         for player in self.players:
             print(player.name, "")
-            ui.cards(player.hand)
+            ui.print_cards(player.hand)
         return self
 
     def showdown(self):
@@ -100,7 +100,7 @@ class Game(object):
 
         """
         print("Community cards:")
-        ui.cards(self.dealer.cardControl.tableCards)
+        ui.print_cards(self.dealer.cardControl.tableCards)
         self.allCards()
         
         winners = self.dealer.chooseWinner(self.players)

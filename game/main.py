@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-import poker
+from poker import Game
 from os import system
+
 def main():
     """ 
     Work to create game
     """
-    game = poker.Game()
+    game = Game()
     system("clear")
     print("Let's play Texas Hold'em!\n")
     allPlayers = game.createPlayers()
