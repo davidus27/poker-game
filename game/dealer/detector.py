@@ -50,7 +50,7 @@ def flush(cards: List[Card]) -> Optional[List[Card]]:
     for suit, count in suit_counts.items():
         if count >= 5:
             suited_cards = [card for card in cards if card.suit == suit]
-            return sorted(suited_cards, key=lambda c: c.rank.value, reverse=True)[:5]
+            return sorted(suited_cards, key=lambda c: c.rank.value, reverse=True)
     return None
 
 
@@ -129,7 +129,7 @@ def find_best_hand(table_cards: List[Card], player_cards: List[Card]) -> HandSco
     # Helper: wrap a list[Card] into a HandScore in one readable line.
     # ------------------------------------------------------------------ #
     def make(rank: HandRank, chosen: List[Card]) -> HandScore:
-        return HandScore(rank, get_high_card_score(chosen), chosen[:5]) # we only return the best 5 cards
+        return HandScore(rank, get_high_card_score(chosen), chosen) # we only return the best 5 cards
 
     # ───────────────────────────────── 1. STRAIGHT-FLUSH FAMILY ─────────────────────────────
     if (sf := straight_flush(cards)):
