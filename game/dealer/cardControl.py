@@ -9,6 +9,7 @@ Description: We need to create a "Dealer" for a game so we can
     easily manage a pot (money on a table) cards on a table, cards on hands,shuffling and who wins.
 """
 from .detector import find_best_hand
+from typing import List, Tuple
 import random
 from cards import Card, Suit, Rank
 
@@ -59,7 +60,7 @@ class CardControl(object):
         self.tableCards.append(self.drawCard())
         return self
 
-    def listCards(self, player):
+    def getAllCards(self, player) -> Tuple[List[Card], List[Card]]:
         """
         Creates the list of cards for specific player
 
@@ -67,7 +68,7 @@ class CardControl(object):
         :returns: list of cards on table and hand of specific player
 
         """
-        return self.tableCards + player.hand
+        return (self.tableCards,  player.hand)
 
     def clearCards(self, players):
         """
@@ -92,7 +93,7 @@ class CardControl(object):
         return (player.hand + kickers)[:5] 
     
   
-    def calculateHandValues(self, players):
+    def calculateHandValues(self, players) -> List[Tuple[int, int]]:
         """
         Creates a list of hand values of everybody playing
 
@@ -101,5 +102,5 @@ class CardControl(object):
 
         """
         for player in players:
-            player.handValue = find_best_hand(self.listCards(player))
+            player.handValue = find_best_hand(*self.getAllCards(player))
         return players
