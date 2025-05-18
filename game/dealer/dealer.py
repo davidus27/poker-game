@@ -6,8 +6,8 @@ Github: https://github.com/yourname
 Description: This is elementary class for maintaining players and cards in the game
 """
 
-from dealer.cardControl import CardControl
-from dealer.playerControl import PlayerControl
+from .cardControl import CardControl
+from .playerControl import PlayerControl
 
 class Dealer(object):
 
@@ -90,7 +90,7 @@ class Dealer(object):
         #    print(player.name, ":", player.handValue)
         
         #sort players by hand value
-        players = sorted(players, key = lambda x: x.handValue, reverse = True)
+        players = sorted(players, key=lambda x: (x.handValue.rank, x.handValue.high_card_score), reverse=True)
         #first is the winner
         winners = [players[0]]
         #check if there is more than one winner, 

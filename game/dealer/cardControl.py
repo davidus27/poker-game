@@ -8,9 +8,10 @@ Github: https://github.com/davidus27
 Description: We need to create a "Dealer" for a game so we can 
     easily manage a pot (money on a table) cards on a table, cards on hands,shuffling and who wins.
 """
-
-from dealer.detector import sortCards,findHandValue
+from .detector import find_best_hand
+from typing import List, Tuple
 import random
+from cards import Card, Suit, Rank
 
 class CardControl(object):
     
@@ -24,11 +25,9 @@ class CardControl(object):
         Creates list of cards.
         Individual cards are tuples with format: (number,color)
         """
-        colors = ["Spades" , "Clubs", "Diamonds", "Hearts"]
-        numbers = [2, 3, 4, 5, 6 ,7 ,8 , 9 ,10,"Jack", "Queen","King", "Ace"]
-        for color in colors:
-            for number in numbers:
-                self.deck.append((number,color))
+        for suit in Suit:
+            for rank in Rank:
+                self.deck.append(Card(rank=rank, suit=suit))
         return self
 
     def shuffle(self):
@@ -61,7 +60,7 @@ class CardControl(object):
         self.tableCards.append(self.drawCard())
         return self
 
-    def listCards(self, player):
+    def getAllCards(self, player) -> Tuple[List[Card], List[Card]]:
         """
         Creates the list of cards for specific player
 
@@ -69,7 +68,7 @@ class CardControl(object):
         :returns: list of cards on table and hand of specific player
 
         """
-        return self.tableCards + player.hand
+        return (self.tableCards,  player.hand)
 
     def clearCards(self, players):
         """
@@ -94,7 +93,7 @@ class CardControl(object):
         return (player.hand + kickers)[:5] 
     
   
-    def calculateHandValues(self, players):
+    def calculateHandValues(self, players) -> List[Tuple[int, int]]:
         """
         Creates a list of hand values of everybody playing
 
@@ -103,6 +102,5 @@ class CardControl(object):
 
         """
         for player in players:
-            cards = sortCards(self.listCards(player))
-            player.handValue = findHandValue(cards)
+            player.handValue = find_best_hand(*self.getAllCards(player))
         return players

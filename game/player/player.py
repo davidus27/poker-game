@@ -9,7 +9,7 @@ from os import path as p
 from sys import path,exit
 ui_package = p.abspath("..") + "/ui"
 path.append(ui_package)
-from ui import optionsInput, raising,allInOrFold
+from ui.cli import optionsInput, raising,allInOrFold
 
 class Player(object):
     def __init__(self, name = "Player", money = 500.0):

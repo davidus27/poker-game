@@ -1,46 +1,26 @@
-def printValue( handValue):
+from typing import Dict
+from dealer.detector import HandScore, HandRank
+
+HAND_NAMES: Dict[HandRank, str] = {
+    HandRank.HIGH_CARD: "High Card",
+    HandRank.PAIR: "Pair",
+    HandRank.TWO_PAIR: "Two Pairs",
+    HandRank.THREE_OF_A_KIND: "Three of a Kind",
+    HandRank.STRAIGHT: "Straight",
+    HandRank.FLUSH: "Flush",
+    HandRank.FULL_HOUSE: "Full House",
+    HandRank.FOUR_OF_A_KIND: "Four of a Kind",
+    HandRank.STRAIGHT_FLUSH: "Straight Flush",
+    HandRank.ROYAL_FLUSH: "Royal Flush"
+}
+
+def print_hand_value(hand_score: HandScore) -> None:
     """
-    Prints the value of the player's card
-
-    :card: TODO
-    :returns: TODO
-
+    Prints the value of the player's hand in a human-readable format.
+    
+    Args:
+        hand_score: The HandScore object containing the hand's rank and details
     """
-    options = { 0: highcard,
-                1: pair,
-                2: twoPairs,
-                3: threeOfKind,
-                4: straight,
-                5: flush,
-                6: fullHouse,
-                7: fourOfKind,
-                8: straightFlush,
-                9: royalFlush,
-            }
-    for o in options:
-        if int(handValue) == o:
-            options[o]()
-
-
-def highcard():
-    print("High Card")
-def pair():
-    print("Pair")
-def twoPairs():
-    print("Two pairs")
-def threeOfKind():
-    print("Three of kind")
-def straight():
-    print("Straight")
-def flush():
-    print("Flush")
-def fullHouse():
-    print("Full house")
-def straightFlush():
-    print("straight flush")
-def fourOfKind():
-    print("Four of a kind")
-def royalFlush():
-    print("Royal Flush")
+    print(HAND_NAMES[hand_score.rank])
 
 
