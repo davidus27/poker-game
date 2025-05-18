@@ -107,7 +107,7 @@ class Game(object):
         x = [winner.name for winner in winners]
         ui.roundWinners(x)
         for w in winners:
-            ui.printValue(w.handValue)
+            ui.print_hand_value(w.handValue)
         self.dealer.playerControl.givePot(winners)
         return self
 

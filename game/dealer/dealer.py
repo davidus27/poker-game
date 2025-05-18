@@ -90,7 +90,7 @@ class Dealer(object):
         #    print(player.name, ":", player.handValue)
         
         #sort players by hand value
-        players = sorted(players, key = lambda x: x.handValue, reverse = True)
+        players = sorted(players, key=lambda x: (x.handValue.rank, x.handValue.high_card_score), reverse=True)
         #first is the winner
         winners = [players[0]]
         #check if there is more than one winner, 
