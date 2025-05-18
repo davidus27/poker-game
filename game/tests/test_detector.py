@@ -238,5 +238,15 @@ class TestPokerHandDetector(unittest.TestCase):
         self.assertEqual(score2.rank, HandRank.STRAIGHT_FLUSH)
         self.assertGreater(score1.rank, score2.rank)
 
+    def test_issue_flush_vs_straight(self):
+        # community: 4h 8s As Qs 6c
+        # player: Ks 5s
+        # expected: flush
+        # actual: straight
+        table, hole = make_cards("4h 8s As Qs 6c", hole="Ks 5s")
+        score = find_best_hand(table, hole)
+        self.assertEqual(score.rank, HandRank.FLUSH)
+
+
 if __name__ == '__main__':
     unittest.main() 
