@@ -1,7 +1,6 @@
-# holdem
+# ♠ ♥  TEXAS HOLD'EM  ♦ ♣ 
 
-No-Limit Texas Hold'em in Python. Play locally against bots or host a
-peer-to-peer table via [Iroh](https://iroh.computer/).
+Texas Hold'em in CLI. Play locally against bots or host a peer-to-peer table via [Iroh](https://iroh.computer/) anywhere.
 
 Requires **Python 3.11+**.
 
@@ -24,6 +23,9 @@ pip install -e ".[network]"
 
 The lobby supports local play, hosting, and joining. The host runs the
 authoritative game engine; guests receive only their seat-private snapshots.
+
+Playing with people only requires to copy-paste starting ticket. You can play   
+together through internet or locally without needing any server!
 
 New local game shows the current table settings (6 players, 1000 chips, blinds
 5/10) and asks if you want to change them. Press Enter to keep the defaults.
@@ -77,6 +79,8 @@ tests/
   protocol/     # envelope round trips and privacy
   connectors/   # transport contract tests
 ```
+
+
 
 ## License
 
