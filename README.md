@@ -40,6 +40,8 @@ holdem join TICKET             # connect to the host
 holdem play --seed 42          # same deals every time
 ```
 
+
+
 ## Development
 
 ```bash
@@ -54,17 +56,7 @@ pytest                                      # settings from pyproject.toml
 pytest -v tests/domain/test_hands.py        # hand-evaluation suite only
 ```
 
-## Status
 
-| Phase | Description                                         | State   |
-| ----- | --------------------------------------------------- | ------- |
-| 0     | Foundations – package layout, CI, tooling           | done    |
-| 1     | Domain + engine + tests (Table, streets, side pots) | done    |
-| 2     | Actor protocol + bots                               | done    |
-| 3     | Rich CLI (`holdem play`)                            | done    |
-| 4     | Iroh lobby (`holdem host` / `holdem join`)          | done    |
-
-See the [rebuild plan](.cursor/plans/holdem_rebuild_plan_589543f9.plan.md) for the full design.
 
 ## Project layout
 
@@ -85,20 +77,6 @@ tests/
   protocol/     # envelope round trips and privacy
   connectors/   # transport contract tests
 ```
-
-## Architecture
-
-```
-holdem.domain   pure value types + hand evaluator
-holdem.engine   Table state machine, betting, pots, streets   (done)
-holdem.actors   Actor protocol, LocalHuman, RandomBot         (done)
-holdem.ui.cli   Rich renderer + prompts                       (done)
-holdem.protocol versioned envelopes, snapshots, event privacy
-holdem.connectors  InMemoryConnector, IrohConnector
-holdem.app      play / host / join entry points
-```
-
-One rule: **the engine never touches I/O**. Bots, CLI, and Iroh are adapters.
 
 ## License
 
