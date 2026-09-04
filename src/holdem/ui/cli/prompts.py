@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from rich.console import Console
 
+from holdem.actors import BotDifficulty
 from holdem.domain.actions import Action, ActionKind
 from holdem.domain.views import LegalAction, SeatView
 
@@ -22,17 +23,21 @@ MAX_DISPLAY_NAME_LENGTH = 24
 
 @dataclass(frozen=True)
 class PlayConfig:
-    """Settings used to create a local table."""
+    """Settings used to create a local or hosted table."""
 
     players: int = DEFAULT_PLAYERS
     starting_stack: int = DEFAULT_STARTING_STACK
     small_blind: int = DEFAULT_SMALL_BLIND
     big_blind: int = DEFAULT_BIG_BLIND
     seed: int | None = None
+    bots: int = 0
+    difficulty: BotDifficulty = BotDifficulty.MEDIUM
 
     def __post_init__(self) -> None:
         if not 2 <= self.players <= 9:
             raise ValueError("players must be between 2 and 9")
+        if not 0 <= self.bots <= self.players - 1:
+            raise ValueError("bots must be between 0 and players minus 1")
         if self.starting_stack <= 0:
             raise ValueError("starting stack must be positive")
         if self.small_blind <= 0 or self.big_blind <= 0:
@@ -42,9 +47,24 @@ class PlayConfig:
         if self.starting_stack < self.big_blind:
             raise ValueError("starting stack must cover the big blind")
 
+    @property
+    def guest_slots(self) -> int:
+        """Number of seats reserved for remote guests at a hosted table."""
+
+        return self.players - 1 - self.bots
+
     def summary(self) -> str:
+        return self._format_summary(self.bots)
+
+    def local_summary(self) -> str:
+        """Summary for a local table, where every other seat is a bot."""
+
+        return self._format_summary(self.players - 1)
+
+    def _format_summary(self, bots: int) -> str:
         return (
-            f"{self.players} players · {self.starting_stack} chips · "
+            f"{self.players} seats · {bots} bots ({self.difficulty.value}) · "
+            f"{self.starting_stack} chips · "
             f"blinds {self.small_blind}/{self.big_blind}"
         )
 
@@ -56,6 +76,8 @@ class PlayConfig:
         starting_stack: int | None = None,
         blinds: tuple[int, int] | None = None,
         seed: int | None = None,
+        bots: int | None = None,
+        difficulty: BotDifficulty | str | None = None,
     ) -> PlayConfig:
         """Build a config, filling unspecified fields with cash-game defaults."""
 
@@ -66,6 +88,8 @@ class PlayConfig:
             small_blind=small,
             big_blind=big,
             seed=seed,
+            bots=0 if bots is None else bots,
+            difficulty=BotDifficulty.MEDIUM if difficulty is None else BotDifficulty(difficulty),
         )
 
 
@@ -168,6 +192,21 @@ def _read_blinds(
             console.print(f"[red]{exc}[/red]")
 
 
+def _read_difficulty(
+    *,
+    reader: LineReader,
+    console: Console,
+    default: BotDifficulty = BotDifficulty.MEDIUM,
+) -> BotDifficulty:
+    choices = "/".join(difficulty.value for difficulty in BotDifficulty)
+    while True:
+        raw = reader(f"Bot difficulty [{default.value}]: ").strip().lower()
+        try:
+            return default if not raw else BotDifficulty(raw)
+        except ValueError:
+            console.print(f"[red]Choose one of: {choices}.[/red]")
+
+
 def prompt_play_config(
     *,
     reader: LineReader = input,
@@ -176,8 +215,11 @@ def prompt_play_config(
     players: int | None = None,
     starting_stack: int | None = None,
     blinds: tuple[int, int] | None = None,
+    bots: int | None = None,
+    difficulty: BotDifficulty | str | None = None,
+    include_bots: bool = True,
 ) -> PlayConfig:
-    """Prompt for a local table configuration, accepting Enter for defaults."""
+    """Prompt for a table configuration, accepting Enter for defaults."""
 
     output = console or Console()
     output.print("[bold]Table settings[/bold]")
@@ -186,6 +228,8 @@ def prompt_play_config(
     player_default = DEFAULT_PLAYERS if players is None else players
     stack_default = DEFAULT_STARTING_STACK if starting_stack is None else starting_stack
     blind_default = blinds if blinds is not None else (DEFAULT_SMALL_BLIND, DEFAULT_BIG_BLIND)
+    bot_default = 0 if bots is None else bots
+    difficulty_default = BotDifficulty.MEDIUM if difficulty is None else BotDifficulty(difficulty)
 
     seats = _read_int(
         "Players (including you)",
@@ -194,6 +238,21 @@ def prompt_play_config(
         reader=reader,
         console=output,
         default=player_default,
+    )
+    bot_count = min(bot_default, seats - 1)
+    if include_bots:
+        bot_count = _read_int(
+            "Bots (hosted tables)",
+            minimum=0,
+            maximum=seats - 1,
+            reader=reader,
+            console=output,
+            default=bot_count,
+        )
+    bot_difficulty = _read_difficulty(
+        reader=reader,
+        console=output,
+        default=difficulty_default,
     )
     while True:
         stack = _read_int(
@@ -206,7 +265,15 @@ def prompt_play_config(
         )
         small, big = _read_blinds(reader=reader, console=output, default=blind_default)
         try:
-            return PlayConfig(seats, stack, small, big, seed)
+            return PlayConfig(
+                players=seats,
+                starting_stack=stack,
+                small_blind=small,
+                big_blind=big,
+                seed=seed,
+                bots=bot_count,
+                difficulty=bot_difficulty,
+            )
         except ValueError as exc:
             output.print(f"[red]{exc}[/red] Choose a larger stack or smaller blinds.")
 

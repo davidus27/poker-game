@@ -17,6 +17,7 @@ from holdem.ui.cli.lobby import (
     prompt_change_settings,
     prompt_display_name,
     prompt_join_ticket,
+    prompt_local_difficulty,
     prompt_menu_option,
     show_intro,
     wait_for_menu,
@@ -72,8 +73,12 @@ def run_lobby(
         if choice is MenuOption.NEW_GAME:
             console.print()
             console.print("[bold]New local game[/bold]")
-            console.print("[dim]You against random bots. First to take every chip wins.[/dim]")
-            session = _maybe_edit_table(reader=reader, console=console, table=session)
+            opponents = session.players - 1
+            console.print(
+                f"[dim]You against {opponents} {session.difficulty.value} bots. "
+                "First to take every chip wins.[/dim]"
+            )
+            session = _maybe_edit_local_table(reader=reader, console=console, table=session)
             winner = play(session, console=console, reader=reader, display_name=name)
             _announce_winner(console, winner)
             wait_for_menu(reader=reader)
@@ -124,6 +129,22 @@ def _maybe_edit_table(
     if prompt_change_settings(reader=reader, console=console, table=table):
         return edit_table_settings(reader=reader, console=console, table=table)
     return table
+
+
+def _maybe_edit_local_table(
+    *,
+    reader: LineReader,
+    console: Console,
+    table: PlayConfig,
+) -> PlayConfig:
+    if prompt_change_settings(reader=reader, console=console, table=table, local=True):
+        return edit_table_settings(
+            reader=reader,
+            console=console,
+            table=table,
+            include_bots=False,
+        )
+    return prompt_local_difficulty(reader=reader, console=console, table=table)
 
 
 def _announce_winner(console: Console, winner: int | None) -> None:

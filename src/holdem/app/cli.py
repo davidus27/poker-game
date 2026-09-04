@@ -7,6 +7,7 @@ from collections.abc import Sequence
 
 from rich.console import Console
 
+from holdem.actors import BotDifficulty
 from holdem.app.lobby import run_lobby
 from holdem.ui.cli.lobby import MenuOption
 from holdem.ui.cli.prompts import (
@@ -50,6 +51,19 @@ def _session_flags() -> argparse.ArgumentParser:
         metavar="SMALL/BIG",
         help=f"blinds (default: {DEFAULT_SMALL_BLIND}/{DEFAULT_BIG_BLIND})",
     )
+    flags.add_argument(
+        "--bots",
+        type=int,
+        metavar="N",
+        help="bot seats on hosted tables (default: 0)",
+    )
+    flags.add_argument(
+        "--difficulty",
+        type=BotDifficulty,
+        choices=BotDifficulty,
+        metavar="LEVEL",
+        help="bot difficulty for local and hosted tables: easy, medium, or hard (default: medium)",
+    )
     return flags
 
 
@@ -86,6 +100,8 @@ def main(argv: Sequence[str] | None = None) -> None:
             starting_stack=args.stack,
             blinds=args.blinds,
             seed=args.seed,
+            bots=args.bots,
+            difficulty=args.difficulty,
         )
     except ValueError as exc:
         parser.error(str(exc))

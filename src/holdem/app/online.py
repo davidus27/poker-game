@@ -7,6 +7,7 @@ import random
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 
+from holdem.actors import Actor
 from holdem.connectors import Connector, PeerDisconnected, PeerId
 from holdem.domain import Action, ActionKind, Event, SeatStatus, SeatView, Street
 from holdem.engine import IllegalAction, Table
@@ -44,6 +45,7 @@ async def play_host_session(
     connector: Connector,
     guests: Mapping[PeerId, tuple[int, str]],
     *,
+    bots: Mapping[int, Actor] | None = None,
     host_name: str,
     source: ActionSource,
     renderer: RichView,
@@ -51,6 +53,17 @@ async def play_host_session(
     on_continue: ContinueHand | None = None,
 ) -> int:
     """Run the authoritative engine and service already-handshaken guests."""
+
+    local_bots = {} if bots is None else bots
+    guest_seats = {seat for seat, _name in guests.values()}
+    bot_seats = set(local_bots)
+    if 0 in bot_seats:
+        raise ValueError("the host seat cannot be a bot")
+    if guest_seats & bot_seats:
+        raise ValueError("a seat cannot be both a guest and a bot")
+    expected_seats = set(range(1, config.players))
+    if guest_seats | bot_seats != expected_seats:
+        raise ValueError("every non-host seat must be assigned to a guest or bot")
 
     table = Table(
         [config.starting_stack] * config.players,
@@ -61,6 +74,8 @@ async def play_host_session(
     names = [host_name] + [f"Player {seat}" for seat in range(1, config.players)]
     for _peer, (seat, name) in guests.items():
         names[seat] = name
+    for seat in local_bots:
+        names[seat] = f"Bot {seat}"
     for peer, (seat, _name) in guests.items():
         await connector.send(
             peer,
@@ -76,6 +91,8 @@ async def play_host_session(
             seat = table.to_act
             if seat == 0:
                 action = source(table.seat_view(0))
+            elif seat in local_bots:
+                action = local_bots[seat].decide(table.seat_view(seat))
             else:
                 peer = _peer_for_seat(guests, seat)
                 action = await _remote_action(
@@ -89,7 +106,7 @@ async def play_host_session(
             try:
                 events = table.apply(action)
             except IllegalAction:
-                if seat == 0:
+                if seat == 0 or seat in local_bots:
                     raise
                 peer = _peer_for_seat(guests, seat)
                 await connector.send(peer, Envelope(ErrorMessage("That action is not legal.")))

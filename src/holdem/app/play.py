@@ -8,7 +8,7 @@ from collections.abc import Callable
 
 from rich.console import Console
 
-from holdem.actors import Actor, LocalHuman, RandomBot
+from holdem.actors import Actor, LocalHuman, make_bot
 from holdem.domain.views import SeatStatus
 from holdem.engine import Table
 from holdem.ui.cli import PlayConfig, RichActionSource, RichView
@@ -53,7 +53,10 @@ def play_local(
     }
     actors.update(
         {
-            seat: RandomBot(random.Random(random_source.getrandbits(64)))
+            seat: make_bot(
+                config.difficulty,
+                random.Random(random_source.getrandbits(64)),
+            )
             for seat in range(1, config.players)
         }
     )

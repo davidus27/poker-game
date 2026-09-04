@@ -7,6 +7,7 @@ from io import StringIO
 
 from rich.console import Console
 
+from holdem.actors import BotDifficulty
 from holdem.domain import (
     Action,
     ActionKind,
@@ -330,6 +331,8 @@ def test_setup_prompt_accepts_empty_input_as_defaults() -> None:
     assert config == PlayConfig(seed=42)
     assert prompts == [
         "Players (including you) [6]: ",
+        "Bots (hosted tables) [0]: ",
+        "Bot difficulty [medium]: ",
         "Starting stack [1000]: ",
         "Blinds (small/big) [5/10]: ",
     ]
@@ -343,6 +346,11 @@ def test_setup_prompt_validates_each_value() -> None:
             "one",
             "1",
             "3",
+            "-1",
+            "3",
+            "1",
+            "expert",
+            "hard",
             "0",
             "100",
             "10",
@@ -359,11 +367,53 @@ def test_setup_prompt_validates_each_value() -> None:
         seed=42,
     )
 
-    assert config == PlayConfig(3, 50, 5, 10, seed=42)
+    assert config == PlayConfig(
+        3,
+        50,
+        5,
+        10,
+        seed=42,
+        bots=1,
+        difficulty=BotDifficulty.HARD,
+    )
     output = stream.getvalue()
     assert "Enter a whole number." in output
     assert "Enter a value in the range 2–9." in output
+    assert "Enter a value in the range 0–2." in output
+    assert "Choose one of: easy/medium/hard." in output
     assert "Use the format small/big" in output
     assert "small cannot exceed big" in output
     assert "starting stack must cover the big blind" in output
     assert "Choose a larger stack or smaller blinds." in output
+
+
+def test_play_config_reports_hosted_bot_seats() -> None:
+    config = PlayConfig(players=6, bots=2, difficulty=BotDifficulty.HARD)
+
+    assert config.guest_slots == 3
+    assert config.summary() == "6 seats · 2 bots (hard) · 1000 chips · blinds 5/10"
+    assert config.local_summary() == "6 seats · 5 bots (hard) · 1000 chips · blinds 5/10"
+
+
+def test_setup_prompt_can_skip_hosted_bot_count() -> None:
+    console, _stream = _console()
+    prompts: list[str] = []
+
+    def reader(prompt: str) -> str:
+        prompts.append(prompt)
+        return "hard" if prompt.startswith("Bot difficulty") else ""
+
+    config = prompt_play_config(
+        reader=reader,
+        console=console,
+        include_bots=False,
+        bots=2,
+    )
+
+    assert config == PlayConfig(bots=2, difficulty=BotDifficulty.HARD)
+    assert prompts == [
+        "Players (including you) [6]: ",
+        "Bot difficulty [medium]: ",
+        "Starting stack [1000]: ",
+        "Blinds (small/big) [5/10]: ",
+    ]

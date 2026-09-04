@@ -6,6 +6,7 @@ from io import StringIO
 
 from rich.console import Console
 
+from holdem.actors import BotDifficulty
 from holdem.app.lobby import run_lobby
 from holdem.app.online import GuestResult, HostResult
 from holdem.ui.cli import MenuOption, PlayConfig
@@ -18,7 +19,7 @@ def _console() -> tuple[Console, StringIO]:
 
 def test_new_game_asks_before_using_defaults() -> None:
     console, stream = _console()
-    responses = iter(["Dave", "1", "", "", "6"])
+    responses = iter(["Dave", "1", "", "", "", "6"])
     prompts: list[str] = []
     played: list[tuple[PlayConfig, str]] = []
 
@@ -40,17 +41,19 @@ def test_new_game_asks_before_using_defaults() -> None:
     assert played == [(PlayConfig(), "Dave")]
     assert prompts[0].startswith("What should we call you?")
     assert any(prompt.startswith("Change these settings?") for prompt in prompts)
+    assert any(prompt.startswith("Bot difficulty") for prompt in prompts)
     output = stream.getvalue()
     assert "TEXAS HOLD'EM" in output
     assert "Hi, Dave." in output
     assert "New local game" in output
+    assert "You against 5 medium bots" in output
     assert "You won!" in output
     assert "See you at the table." in output
 
 
 def test_settings_persist_into_the_next_local_game() -> None:
     console, _stream = _console()
-    responses = iter(["Ava", "4", "3", "", "", "1", "", "", "6"])
+    responses = iter(["Ava", "4", "3", "", "", "", "", "1", "", "", "", "6"])
     played: list[PlayConfig] = []
 
     def fake_play(config: PlayConfig, **_kwargs: object) -> int:
@@ -64,6 +67,47 @@ def test_settings_persist_into_the_next_local_game() -> None:
     )
 
     assert played == [PlayConfig(players=3)]
+
+
+def test_local_game_asks_difficulty_and_uses_it() -> None:
+    console, stream = _console()
+    responses = iter(["Dave", "1", "", "hard", "", "6"])
+    played: list[PlayConfig] = []
+
+    def fake_play(config: PlayConfig, **_kwargs: object) -> int:
+        played.append(config)
+        return 0
+
+    run_lobby(
+        console=console,
+        reader=lambda _prompt: next(responses),
+        play=fake_play,
+    )
+
+    assert played == [PlayConfig(difficulty=BotDifficulty.HARD)]
+    assert "You against 5 medium bots" in stream.getvalue()
+
+
+def test_local_settings_skip_hosted_bot_count() -> None:
+    console, stream = _console()
+    responses = iter(["Dave", "1", "y", "4", "easy", "", "", "", "6"])
+    prompts: list[str] = []
+    played: list[PlayConfig] = []
+
+    def reader(prompt: str) -> str:
+        prompts.append(prompt)
+        return next(responses)
+
+    def fake_play(config: PlayConfig, **_kwargs: object) -> int:
+        played.append(config)
+        return 0
+
+    run_lobby(console=console, reader=reader, play=fake_play)
+
+    assert played == [PlayConfig(players=4, difficulty=BotDifficulty.EASY)]
+    assert any(prompt.startswith("Bot difficulty") for prompt in prompts)
+    assert not any("Bots (hosted tables)" in prompt for prompt in prompts)
+    assert "6 seats · 5 bots (medium)" in stream.getvalue()
 
 
 def test_host_and_join_run_online_sessions() -> None:

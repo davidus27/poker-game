@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from pytest import MonkeyPatch
 
+from holdem.actors import BotDifficulty
 from holdem.app import cli
 from holdem.ui.cli import MenuOption, PlayConfig
 
@@ -59,10 +60,22 @@ def test_flags_prefill_table_and_name(monkeypatch: MonkeyPatch) -> None:
             "7",
             "--name",
             "Dave",
+            "--bots",
+            "1",
+            "--difficulty",
+            "hard",
         ]
     )
 
-    assert captured["table"] == PlayConfig(3, 100, 5, 10, seed=7)
+    assert captured["table"] == PlayConfig(
+        3,
+        100,
+        5,
+        10,
+        seed=7,
+        bots=1,
+        difficulty=BotDifficulty.HARD,
+    )
     assert captured["display_name"] == "Dave"
 
 

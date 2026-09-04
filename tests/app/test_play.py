@@ -7,6 +7,7 @@ from io import StringIO
 from pytest import MonkeyPatch
 from rich.console import Console
 
+from holdem.actors import BotDifficulty
 from holdem.app import play as play_mod
 from holdem.domain import Action, ActionKind, SeatView
 from holdem.ui.cli import PlayConfig
@@ -100,3 +101,32 @@ def test_hand_result_waits_before_the_next_deal(monkeypatch: MonkeyPatch) -> Non
     )
 
     assert any("next hand" in prompt.lower() for prompt in prompts)
+
+
+def test_local_play_uses_configured_bot_difficulty(monkeypatch: MonkeyPatch) -> None:
+    created: list[BotDifficulty] = []
+    real_make_bot = play_mod.make_bot
+
+    def tracking_make_bot(difficulty: BotDifficulty, rng: object = None) -> object:
+        created.append(difficulty)
+        return real_make_bot(difficulty, rng)
+
+    monkeypatch.setattr(play_mod, "make_bot", tracking_make_bot)
+    monkeypatch.setattr(play_mod, "RichActionSource", _SafeHuman)
+    console = Console(file=StringIO(), force_terminal=False, width=100)
+
+    play_mod.play_local(
+        PlayConfig(
+            players=2,
+            starting_stack=50,
+            small_blind=1,
+            big_blind=2,
+            seed=1,
+            difficulty=BotDifficulty.HARD,
+        ),
+        console=console,
+        pause=lambda _seconds: None,
+        on_continue=lambda: None,
+    )
+
+    assert created == [BotDifficulty.HARD]

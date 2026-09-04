@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from enum import Enum
 
 from rich.console import Console
@@ -13,6 +14,7 @@ from holdem.ui.cli.prompts import (
     MAX_DISPLAY_NAME_LENGTH,
     LineReader,
     PlayConfig,
+    _read_difficulty,
     _read_text,
     _read_yes_no,
     prompt_play_config,
@@ -91,11 +93,12 @@ def prompt_change_settings(
     reader: LineReader,
     console: Console,
     table: PlayConfig,
+    local: bool = False,
 ) -> bool:
     """Ask whether to edit the current table settings."""
 
     console.print()
-    console.print(f"[dim]{table.summary()}[/dim]")
+    console.print(f"[dim]{table.local_summary() if local else table.summary()}[/dim]")
     return _read_yes_no(
         "Change these settings?",
         reader=reader,
@@ -109,6 +112,7 @@ def edit_table_settings(
     reader: LineReader,
     console: Console,
     table: PlayConfig,
+    include_bots: bool = True,
 ) -> PlayConfig:
     """Prompt for table settings, using the current values as defaults."""
 
@@ -119,6 +123,27 @@ def edit_table_settings(
         players=table.players,
         starting_stack=table.starting_stack,
         blinds=(table.small_blind, table.big_blind),
+        bots=table.bots,
+        difficulty=table.difficulty,
+        include_bots=include_bots,
+    )
+
+
+def prompt_local_difficulty(
+    *,
+    reader: LineReader,
+    console: Console,
+    table: PlayConfig,
+) -> PlayConfig:
+    """Ask which heuristic bot difficulty to use for a local table."""
+
+    return replace(
+        table,
+        difficulty=_read_difficulty(
+            reader=reader,
+            console=console,
+            default=table.difficulty,
+        ),
     )
 
 
