@@ -7,8 +7,8 @@ from io import StringIO
 from rich.console import Console
 
 from holdem.app.lobby import run_lobby
+from holdem.app.online import GuestResult
 from holdem.ui.cli import MenuOption, PlayConfig
-from holdem.ui.cli.lobby import ONLINE_UNAVAILABLE
 
 
 def _console() -> tuple[Console, StringIO]:
@@ -66,23 +66,32 @@ def test_settings_persist_into_the_next_local_game() -> None:
     assert played == [PlayConfig(players=3)]
 
 
-def test_host_and_join_show_coming_soon_without_starting_a_game() -> None:
+def test_host_and_join_run_online_sessions() -> None:
     console, stream = _console()
     responses = iter(["Sam", "2", "", "", "3", "friend-ticket", "", "6"])
     played: list[PlayConfig] = []
+    hosted: list[tuple[PlayConfig, str]] = []
+    joined: list[tuple[str, str]] = []
 
     run_lobby(
         console=console,
         reader=lambda _prompt: next(responses),
         play=lambda *_args, **_kwargs: played.append(PlayConfig()) or 0,
+        host=lambda config, **kwargs: hosted.append((config, str(kwargs["display_name"]))) or 0,
+        join=lambda ticket, **kwargs: (
+            joined.append((ticket, str(kwargs["display_name"])))
+            or GuestResult(winner=0, local_seat=1, names=("Host", "Sam"))
+        ),
     )
 
     output = stream.getvalue()
     assert played == []
+    assert hosted == [(PlayConfig(), "Sam")]
+    assert joined == [("friend-ticket", "Sam")]
     assert "Host a table" in output
     assert "Join a table" in output
-    assert "friend-ticket" in output
-    assert ONLINE_UNAVAILABLE in output
+    assert "Sam won!" in output
+    assert "Host won." in output
 
 
 def test_named_join_command_skips_ticket_prompt() -> None:
@@ -96,11 +105,15 @@ def test_named_join_command_skips_ticket_prompt() -> None:
         opening=MenuOption.JOIN,
         join_ticket="abc123",
         play=lambda *_args, **_kwargs: 0,
+        join=lambda *_args, **_kwargs: GuestResult(
+            winner=1,
+            local_seat=1,
+            names=("Host", "Sam"),
+        ),
     )
 
     output = stream.getvalue()
     assert "abc123" in output
-    assert ONLINE_UNAVAILABLE in output
     assert "See you at the table." in output
 
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 from rich.align import Align
 from rich.console import Console, Group, RenderableType
@@ -64,10 +64,12 @@ class RichView:
         console: Console | None = None,
         clear_screen: bool = True,
         display_name: str = "You",
+        seat_names: Mapping[int, str] | None = None,
     ) -> None:
         self.console = console or Console()
         self.clear_screen = clear_screen
         self.display_name = display_name
+        self.seat_names = dict(seat_names or {})
         self._headline: str | None = None
         self._log: list[str] = []
         self._seat_last: dict[int, str] = {}
@@ -170,7 +172,7 @@ class RichView:
             elif isinstance(event, BlindPosted):
                 who = self._who(event.seat_id, viewer)
                 kind = event.kind.value
-                verb = "post" if event.seat_id == viewer else "posts"
+                verb = "post" if who == "You" else "posts"
                 line = f"{who} {verb} the {kind} blind ({event.amount:,})."
                 self._seat_last[event.seat_id] = f"posts {kind} {event.amount:,}"
                 self._push(line)
@@ -203,7 +205,7 @@ class RichView:
                 self._push(f"{self._who(event.seat_id, viewer)} busted.")
             elif isinstance(event, TournamentEnded):
                 who = self._who(event.winner, viewer)
-                verb = "win" if event.winner == viewer else "wins"
+                verb = "win" if who == "You" else "wins"
                 self._push(f"{who} {verb} the game!")
             elif isinstance(event, HandEnded):
                 self._push(f"Hand {event.hand_number} ended.")
@@ -217,7 +219,7 @@ class RichView:
     def _who(self, seat_id: int, viewer: int) -> str:
         if seat_id == viewer:
             return self.display_name
-        return f"Bot {seat_id}"
+        return self.seat_names.get(seat_id, f"Bot {seat_id}")
 
     @staticmethod
     def _board_caption(view: SeatView) -> str:
@@ -240,7 +242,7 @@ class RichView:
 
     def _action_line(self, event: PlayerActed, viewer: int) -> str:
         who = self._who(event.seat_id, viewer)
-        return f"{who} {self._action_phrase(event, first_person=event.seat_id == viewer)}."
+        return f"{who} {self._action_phrase(event, first_person=who == 'You')}."
 
     @staticmethod
     def _action_short(event: PlayerActed) -> str:

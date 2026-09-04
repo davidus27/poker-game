@@ -20,6 +20,7 @@ from holdem.domain import (
     Showdown,
     ShowdownHand,
     Street,
+    TournamentEnded,
     parse_cards,
 )
 from holdem.domain.hands import find_best_hand
@@ -99,6 +100,20 @@ def test_renderer_uses_display_name_for_the_local_seat() -> None:
     assert "Dave" in stream.getvalue()
 
 
+def test_renderer_uses_online_names_for_other_seats() -> None:
+    console, stream = _console()
+    renderer = RichView(
+        console=console,
+        clear_screen=False,
+        display_name="Dave",
+        seat_names={1: "Ava"},
+    )
+
+    renderer.render([], _view())
+
+    assert "Ava" in stream.getvalue()
+
+
 def test_renderer_uses_playing_card_faces_and_keeps_the_last_bot_action() -> None:
     console, stream = _console()
     renderer = RichView(console=console, clear_screen=False)
@@ -151,6 +166,22 @@ def test_local_player_actions_use_first_person() -> None:
     output = stream.getvalue()
     assert "You call 10." in output
     assert "You calls" not in output
+
+
+def test_named_local_player_uses_third_person_grammar() -> None:
+    console, stream = _console()
+    renderer = RichView(console=console, clear_screen=False, display_name="Dave")
+    renderer.render(
+        [
+            PlayerActed(0, Action.call(), chips=10, stack=90, street_bet=20),
+            TournamentEnded(0),
+        ],
+        _view(),
+    )
+
+    output = stream.getvalue()
+    assert "Dave calls 10." in output
+    assert "Dave wins the game!" in output
 
 
 def test_spectating_hides_hole_cards() -> None:

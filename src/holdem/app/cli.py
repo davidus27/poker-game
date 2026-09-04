@@ -32,6 +32,8 @@ def _session_flags() -> argparse.ArgumentParser:
     flags.add_argument("--name", help="display name at the table (default: You)")
     flags.add_argument(
         "--players",
+        "--seats",
+        dest="players",
         type=int,
         metavar="N",
         help=f"seats including you (default: {DEFAULT_PLAYERS})",
@@ -63,12 +65,12 @@ def build_parser() -> argparse.ArgumentParser:
     commands.add_parser(
         "host",
         parents=[session],
-        help="host an online table (coming soon)",
+        help="host an online table and print an Iroh ticket",
     )
     join = commands.add_parser(
         "join",
         parents=[session],
-        help="join an online table (coming soon)",
+        help="join an online table with an Iroh ticket",
     )
     join.add_argument("ticket", nargs="?", help="table ticket from the host")
     return parser

@@ -1,4 +1,4 @@
-"""Intro screen, main menu, and coming-soon host/join flows."""
+"""Intro screen and main-menu prompts."""
 
 from __future__ import annotations
 
@@ -18,10 +18,6 @@ from holdem.ui.cli.prompts import (
     prompt_play_config,
 )
 
-ONLINE_UNAVAILABLE = (
-    "Online play is not available yet. The host/join lobby via Iroh lands in a later version."
-)
-
 
 class MenuOption(Enum):
     NEW_GAME = "1"
@@ -36,9 +32,7 @@ def show_intro(console: Console) -> None:
     """Print the one-time welcome banner."""
 
     console.print(
-        logo_banner(
-            subtitle="Play locally against bots. Host or join friends when online play lands."
-        )
+        logo_banner(subtitle="Play locally against bots, or host and join friends over Iroh.")
     )
 
 
@@ -78,8 +72,8 @@ def prompt_menu_option(
     console.print()
     console.print("What would you like to do?")
     console.print("  [cyan]1[/cyan]. New local game")
-    console.print("  [cyan]2[/cyan]. Host a table     [dim]coming soon[/dim]")
-    console.print("  [cyan]3[/cyan]. Join a table     [dim]coming soon[/dim]")
+    console.print("  [cyan]2[/cyan]. Host a table")
+    console.print("  [cyan]3[/cyan]. Join a table")
     console.print("  [cyan]4[/cyan]. Table settings")
     console.print("  [cyan]5[/cyan]. Change name")
     console.print("  [cyan]6[/cyan]. Quit")
@@ -134,34 +128,12 @@ def prompt_join_ticket(
     console: Console,
     ticket: str | None = None,
 ) -> str:
-    """Collect a host ticket. Empty is allowed; joining is not wired up yet."""
+    """Collect a host ticket."""
 
     if ticket:
         console.print(f"Ticket: {ticket}")
         return ticket
     return reader("Table ticket: ").strip()
-
-
-def show_host_unavailable(console: Console, table: PlayConfig) -> None:
-    """Show the host-table screen without starting a network session."""
-
-    console.print()
-    console.print("[bold]Host a table[/bold]")
-    console.print("Friends would see a ticket here and join your game.")
-    console.print(f"[dim]This table: {table.summary()}[/dim]")
-    console.print(f"[yellow]{ONLINE_UNAVAILABLE}[/yellow]")
-
-
-def show_join_unavailable(console: Console, ticket: str) -> None:
-    """Show the join-table screen without connecting."""
-
-    console.print()
-    console.print("[bold]Join a table[/bold]")
-    if ticket:
-        console.print(f"Ticket [cyan]{ticket}[/cyan] would be used to find the host.")
-    else:
-        console.print("You would paste a ticket from the host here.")
-    console.print(f"[yellow]{ONLINE_UNAVAILABLE}[/yellow]")
 
 
 def wait_for_menu(*, reader: LineReader) -> None:
