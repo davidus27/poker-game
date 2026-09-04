@@ -1,0 +1,279 @@
+"""Rich renderer for seat-private table snapshots."""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+
+from rich.align import Align
+from rich.console import Console, Group, RenderableType
+from rich.markup import escape
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+
+from holdem.domain.actions import ActionKind
+from holdem.domain.cards import Card, HandRank, HandScore
+from holdem.domain.events import (
+    BlindPosted,
+    Event,
+    HandEnded,
+    HandStarted,
+    HoleDealt,
+    PlayerActed,
+    PlayerBusted,
+    PotsAwarded,
+    Showdown,
+    StreetDealt,
+    TournamentEnded,
+)
+from holdem.domain.views import SeatStatus, SeatView, Street
+from holdem.ui.cli.brand import logo_mark
+from holdem.ui.cli.card_art import board_row, cards_text, hole_row
+
+_HAND_NAMES = {
+    HandRank.HIGH_CARD: "high card",
+    HandRank.PAIR: "one pair",
+    HandRank.TWO_PAIR: "two pair",
+    HandRank.THREE_OF_A_KIND: "three of a kind",
+    HandRank.STRAIGHT: "a straight",
+    HandRank.FLUSH: "a flush",
+    HandRank.FULL_HOUSE: "a full house",
+    HandRank.FOUR_OF_A_KIND: "four of a kind",
+    HandRank.STRAIGHT_FLUSH: "a straight flush",
+    HandRank.ROYAL_FLUSH: "a royal flush",
+}
+_LOG_LIMIT = 8
+_STREET_TITLES = {
+    Street.WAITING: "Waiting",
+    Street.PREFLOP: "Preflop",
+    Street.FLOP: "Flop",
+    Street.TURN: "Turn",
+    Street.RIVER: "River",
+    Street.SHOWDOWN: "Showdown",
+    Street.HAND_OVER: "Hand over",
+    Street.TOURNAMENT_OVER: "Tournament over",
+}
+
+
+class RichView:
+    """Render the table, private cards, and latest public events."""
+
+    def __init__(
+        self,
+        *,
+        console: Console | None = None,
+        clear_screen: bool = True,
+        display_name: str = "You",
+    ) -> None:
+        self.console = console or Console()
+        self.clear_screen = clear_screen
+        self.display_name = display_name
+        self._headline: str | None = None
+        self._log: list[str] = []
+        self._seat_last: dict[int, str] = {}
+
+    def render(
+        self,
+        events: Sequence[Event],
+        view: SeatView,
+        *,
+        thinking_seat: int | None = None,
+        spectating: bool = False,
+    ) -> None:
+        self._ingest(events, view.seat_id)
+        if thinking_seat is not None:
+            who = self._who(thinking_seat, view.seat_id)
+            self._headline = f"{who} is thinking…"
+        if self.clear_screen:
+            self.console.clear()
+        self.console.print(self._layout(view, thinking_seat=thinking_seat, spectating=spectating))
+
+    def _layout(
+        self,
+        view: SeatView,
+        *,
+        thinking_seat: int | None,
+        spectating: bool = False,
+    ) -> RenderableType:
+        seats = Table(expand=True, box=None, show_header=True, pad_edge=False)
+        seats.add_column("Seat", style="bold")
+        seats.add_column("Stack", justify="right")
+        seats.add_column("Bet", justify="right")
+        seats.add_column("Status")
+        seats.add_column("Last")
+
+        for seat in view.seats:
+            markers: list[str] = []
+            if seat.seat_id == view.button:
+                markers.append("D")
+            if seat.seat_id == view.to_act:
+                markers.append("→")
+            name = self._who(seat.seat_id, view.seat_id)
+            label = f"{escape(name)} {' '.join(markers)}".rstrip()
+            status_style = {
+                SeatStatus.ACTIVE: "green",
+                SeatStatus.ALL_IN: "yellow",
+                SeatStatus.FOLDED: "dim",
+                SeatStatus.BUSTED: "red",
+            }[seat.status]
+            last_cell: str | Text
+            if thinking_seat == seat.seat_id:
+                last_cell = Text("thinking…", style="italic cyan")
+            else:
+                last_cell = self._seat_last.get(seat.seat_id, "—")
+            seats.add_row(
+                label,
+                f"{seat.stack:,}",
+                f"{seat.street_bet:,}",
+                Text(seat.status.value.replace("_", " ").title(), style=status_style),
+                last_cell,
+            )
+
+        felt = Table.grid(expand=True, padding=(0, 0))
+        felt.add_column(justify="center")
+        felt.add_row(Text(self._board_caption(view), style="bold"))
+        felt.add_row(Align.center(board_row(view.board)))
+        felt.add_row(Text(f"Pot {self._pot_label(view)}", style="bold yellow"))
+        felt.add_row(Text(""))
+        if spectating:
+            felt.add_row(Text("Spectating — you are out", style="bold dim"))
+        else:
+            felt.add_row(Text("Your hand", style="bold"))
+            felt.add_row(Align.center(hole_row(view.hole)))
+
+        street = _STREET_TITLES.get(view.street, view.street.value)
+        headline = self._headline or "Waiting for action…"
+        history = self._log[-_LOG_LIMIT:]
+        if history and history[-1] == headline:
+            history = history[:-1]
+        latest = Text()
+        latest.append(headline, style="bold yellow")
+        if history:
+            latest.append("\n")
+            latest.append("\n".join(history), style="dim")
+
+        return Group(
+            Align.center(logo_mark()),
+            Text(f"Hand {view.hand_number}  ·  {street}", style="bold", justify="center"),
+            Panel(felt, title="The felt", border_style="blue"),
+            Panel(seats, title="Table", border_style="cyan"),
+            Panel(latest, title="Latest", border_style="magenta"),
+        )
+
+    def _ingest(self, events: Sequence[Event], viewer: int) -> None:
+        for event in events:
+            if isinstance(event, HandStarted):
+                self._seat_last.clear()
+                self._log.clear()
+                line = f"Hand {event.hand_number} dealt."
+                self._push(line)
+            elif isinstance(event, BlindPosted):
+                who = self._who(event.seat_id, viewer)
+                kind = event.kind.value
+                verb = "post" if event.seat_id == viewer else "posts"
+                line = f"{who} {verb} the {kind} blind ({event.amount:,})."
+                self._seat_last[event.seat_id] = f"posts {kind} {event.amount:,}"
+                self._push(line)
+            elif isinstance(event, HoleDealt):
+                if event.seat_id == viewer:
+                    self._push("Your hole cards were dealt.")
+            elif isinstance(event, PlayerActed):
+                line = self._action_line(event, viewer)
+                self._seat_last[event.seat_id] = self._action_short(event)
+                self._push(line)
+            elif isinstance(event, StreetDealt):
+                street = _STREET_TITLES.get(event.street, event.street.value)
+                line = f"{street} dealt: {cards_text(event.cards).plain}"
+                self._push(line)
+            elif isinstance(event, Showdown):
+                shown = "; ".join(
+                    f"{self._who(hand.seat_id, viewer)} — {describe_hand(hand.score)} "
+                    f"(hole {cards_text(hand.hole).plain})"
+                    for hand in event.revelations
+                )
+                self._push(f"Showdown: {shown}.")
+            elif isinstance(event, PotsAwarded):
+                awards = ", ".join(
+                    f"{award.amount:,} to "
+                    + ", ".join(self._who(seat, viewer) for seat in award.winners)
+                    for award in event.awards
+                )
+                self._push(f"Pot awarded: {awards}." if awards else "No pot awarded.")
+            elif isinstance(event, PlayerBusted):
+                self._push(f"{self._who(event.seat_id, viewer)} busted.")
+            elif isinstance(event, TournamentEnded):
+                who = self._who(event.winner, viewer)
+                verb = "win" if event.winner == viewer else "wins"
+                self._push(f"{who} {verb} the game!")
+            elif isinstance(event, HandEnded):
+                self._push(f"Hand {event.hand_number} ended.")
+
+    def _push(self, line: str) -> None:
+        self._headline = line
+        self._log.append(line)
+        if len(self._log) > _LOG_LIMIT * 2:
+            self._log = self._log[-_LOG_LIMIT:]
+
+    def _who(self, seat_id: int, viewer: int) -> str:
+        if seat_id == viewer:
+            return self.display_name
+        return f"Bot {seat_id}"
+
+    @staticmethod
+    def _board_caption(view: SeatView) -> str:
+        dealt = len(view.board)
+        if dealt == 0:
+            return "Board  ·  waiting for the flop"
+        if dealt == 3:
+            return "Board  ·  flop"
+        if dealt == 4:
+            return "Board  ·  turn"
+        return "Board  ·  river"
+
+    @staticmethod
+    def _pot_label(view: SeatView) -> str:
+        total = f"{view.pot_total:,}"
+        if len(view.pots) <= 1:
+            return total
+        layers = " · ".join(f"{pot.amount:,}" for pot in view.pots)
+        return f"{total}  ({layers})"
+
+    def _action_line(self, event: PlayerActed, viewer: int) -> str:
+        who = self._who(event.seat_id, viewer)
+        return f"{who} {self._action_phrase(event, first_person=event.seat_id == viewer)}."
+
+    @staticmethod
+    def _action_short(event: PlayerActed) -> str:
+        return RichView._action_phrase(event, first_person=False)
+
+    @staticmethod
+    def _action_phrase(event: PlayerActed, *, first_person: bool) -> str:
+        kind = event.action.kind
+        if kind is ActionKind.FOLD:
+            return "fold" if first_person else "folds"
+        if kind is ActionKind.CHECK:
+            return "check" if first_person else "checks"
+        if kind is ActionKind.CALL:
+            verb = "call" if first_person else "calls"
+            return f"{verb} {event.chips:,}"
+        if kind is ActionKind.RAISE:
+            amount = event.action.amount if event.action.amount is not None else event.street_bet
+            verb = "raise" if first_person else "raises"
+            return f"{verb} to {amount:,}"
+        verb = "go" if first_person else "goes"
+        return f"{verb} all in ({event.street_bet:,})"
+
+
+def describe_hand(score: HandScore) -> str:
+    """Human-readable made hand, including the five cards that play."""
+
+    name = _HAND_NAMES[score.rank]
+    made = _made_cards(score)
+    return f"{name} {cards_text(made).plain}"
+
+
+def _made_cards(score: HandScore) -> tuple[Card, ...]:
+    if score.rank is HandRank.HIGH_CARD:
+        ordered = sorted(score.cards, key=lambda card: card.rank.value, reverse=True)
+        return tuple(ordered[:5])
+    return tuple(score.cards[:5])
