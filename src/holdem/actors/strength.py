@@ -162,8 +162,7 @@ def monte_carlo_equity(
         raise ValueError("samples must be positive")
     known = _validate_known_cards(view.hole, view.board)
     opponents = sum(
-        seat.seat_id != view.seat_id
-        and seat.status in {SeatStatus.ACTIVE, SeatStatus.ALL_IN}
+        seat.seat_id != view.seat_id and seat.status in {SeatStatus.ACTIVE, SeatStatus.ALL_IN}
         for seat in view.seats
     )
     if opponents == 0:

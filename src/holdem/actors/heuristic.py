@@ -122,7 +122,9 @@ class HeuristicBot:
 
         legal = {choice.kind: choice for choice in view.legal_actions}
         equity = self._estimated_equity(view)
-        equity = min(1.0, max(0.0, equity + self.rng.uniform(-self.policy.noise, self.policy.noise)))
+        equity = min(
+            1.0, max(0.0, equity + self.rng.uniform(-self.policy.noise, self.policy.noise))
+        )
         odds = pot_odds(view)
 
         if odds == 0:

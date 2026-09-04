@@ -115,9 +115,7 @@ async def _host_table(
             joined: int,
             needed: int,
         ) -> None:
-            console.print(
-                f"[green]{name} joined as seat {seat} ({joined}/{needed}).[/green]"
-            )
+            console.print(f"[green]{name} joined as seat {seat} ({joined}/{needed}).[/green]")
 
         start = asyncio.Event()
         start_watcher: asyncio.Task[None] | None = None
