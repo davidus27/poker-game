@@ -4,22 +4,26 @@ No-Limit Texas Hold'em written in Python. The goal is a correct, testable engine
 that supports local play, bots, and peer-to-peer online sessions via
 [Iroh](https://iroh.computer/).
 
-## Status
+## TODO
 
-| Phase | Description | State |
-|-------|-------------|-------|
-| 0 | Foundations – package layout, CI, tooling | ✅ done |
-| 1 | Domain + engine + tests (Table, streets, side pots) | ✅ done |
-| 2 | Actor protocol + bots | 🔲 next |
-| 3 | Rich CLI (`holdem play`) | 🔲 planned |
-| 4 | Iroh lobby (`holdem host` / `holdem join`) | 🔲 planned |
 
-See [`holdem_rebuild_plan.md`](.cursor/plans/holdem_rebuild_plan_589543f9.plan.md) for the full design.
+| Phase | Description                                         | State   |
+| ----- | --------------------------------------------------- | ------- |
+| 0     | Foundations – package layout, CI, tooling           | done    |
+| 1     | Domain + engine + tests (Table, streets, side pots) | done    |
+| 2     | Actor protocol + bots                               | planned |
+| 3     | Rich CLI (`holdem play`)                            | planned |
+| 4     | Iroh lobby (`holdem host` / `holdem join`)          | planned |
+
+
+See `[holdem_rebuild_plan.md](.cursor/plans/holdem_rebuild_plan_589543f9.plan.md)` for the full design.
 
 ## Requirements
 
-* Python ≥ 3.11
-* [pip](https://pip.pypa.io/)
+- Python ≥ 3.11
+- [pip](https://pip.pypa.io/)
+
+
 
 ## Installation
 
@@ -29,11 +33,15 @@ cd poker-game
 pip install -e ".[dev]"   # installs runtime + dev tools
 ```
 
+
+
 ## Usage
 
 ```text
 holdem   # CLI not yet implemented (Phase 3)
 ```
+
+
 
 ## Development
 
@@ -44,12 +52,16 @@ make typecheck   # mypy strict
 make install     # pip install -e ".[dev]"
 ```
 
+
+
 ### Running tests directly
 
 ```bash
 pytest           # uses settings from pyproject.toml
 pytest -v tests/domain/test_hands.py   # just the hand-evaluation suite
 ```
+
+
 
 ## Project layout
 
@@ -62,6 +74,8 @@ tests/
   domain/       # hand evaluation + card codec
   engine/       # blinds, streets, actions, pots, showdown, replay
 ```
+
+
 
 ## Architecture (target)
 

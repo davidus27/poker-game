@@ -2,33 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
+from holdem.actors import ScriptedActor
 from holdem.domain.actions import Action
 from holdem.domain.cards import Card, parse_card, parse_cards
 from holdem.domain.events import Event
-from holdem.domain.views import SeatView
 from holdem.engine.deck import standard_deck
 from holdem.engine.table import Table
-
-
-class ScriptedActor:
-    """Feeds a predetermined sequence of actions. Used to drive the engine in tests."""
-
-    def __init__(self, actions: Iterable[Action]) -> None:
-        self._actions = list(actions)
-        self._index = 0
-
-    def decide(self, view: SeatView) -> Action:
-        if self._index >= len(self._actions):
-            raise AssertionError(f"seat {view.seat_id} has no scripted action left")
-        action = self._actions[self._index]
-        self._index += 1
-        return action
-
-    @property
-    def remaining(self) -> int:
-        return len(self._actions) - self._index
 
 
 def clockwise_from(n_seats: int, after: int) -> list[int]:
