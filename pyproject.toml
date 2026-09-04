@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "holdem"
-version = "0.1.0"
+version = "1.0.0"
 description = "No-Limit Texas Hold'em – pure engine, CLI, and online lobby via Iroh"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
