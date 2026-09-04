@@ -10,7 +10,7 @@ readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "Dave", email = "davidus27@gmail.com" }]
 requires-python = ">=3.11"
-dependencies = ["rich>=13"]
+dependencies = ["questionary>=2", "rich>=13"]
 
 [project.optional-dependencies]
 network = ["iroh>=1,<2"]
