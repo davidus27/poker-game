@@ -28,10 +28,12 @@ Playing with people only requires to copy-paste starting ticket. You can play
 together through internet or locally without needing any server!
 
 New local game shows the current table settings (6 players, 1000 chips, blinds
-5/10) and asks if you want to change them. Press Enter to keep the defaults.
+5/10) before you start, with options to change them or go Back.
 
-Each turn, pick a number from the legal-action menu. Hands keep going until
-one stack remains. After the game you return to the menu. `Ctrl+C` cancels.
+Use the arrow keys and Enter for menus and legal actions; typed numbers still
+work as a fallback. Back, `Esc`, or `Ctrl+C` cancels a nested prompt. During a
+game, `Ctrl+C` leaves the table and returns to the lobby; from the main menu it
+quits cleanly. Hands keep going until one stack remains.
 
 ```bash
 holdem                         # same lobby as holdem play

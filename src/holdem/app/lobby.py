@@ -11,6 +11,7 @@ from holdem.app.join import join_table
 from holdem.app.online import GuestResult, HostResult
 from holdem.app.play import play_local
 from holdem.connectors import IrohUnavailable
+from holdem.ui.cli.interact import Cancelled
 from holdem.ui.cli.lobby import (
     MenuOption,
     edit_table_settings,
@@ -45,16 +46,23 @@ def run_lobby(
 
     session = table or PlayConfig()
     show_intro(console)
-    name = display_name if display_name else prompt_display_name(reader=reader, console=console)
+    try:
+        name = display_name if display_name else prompt_display_name(reader=reader, console=console)
+    except (Cancelled, KeyboardInterrupt):
+        console.print("\nSee you at the table.")
+        return
     pending = opening
 
     while True:
-        choice = pending or prompt_menu_option(
-            reader=reader,
-            console=console,
-            display_name=name,
-            table=session,
-        )
+        try:
+            choice = pending or prompt_menu_option(
+                reader=reader,
+                console=console,
+                display_name=name,
+                table=session,
+            )
+        except (Cancelled, KeyboardInterrupt):
+            choice = MenuOption.QUIT
         pending = None
 
         if choice is MenuOption.QUIT:
@@ -62,11 +70,17 @@ def run_lobby(
             return
 
         if choice is MenuOption.NAME:
-            name = prompt_display_name(reader=reader, console=console, default=name)
+            try:
+                name = prompt_display_name(reader=reader, console=console, default=name)
+            except (Cancelled, KeyboardInterrupt):
+                pass
             continue
 
         if choice is MenuOption.SETTINGS:
-            session = edit_table_settings(reader=reader, console=console, table=session)
+            try:
+                session = edit_table_settings(reader=reader, console=console, table=session)
+            except (Cancelled, KeyboardInterrupt):
+                continue
             console.print("[green]Settings saved.[/green]")
             continue
 
@@ -78,14 +92,27 @@ def run_lobby(
                 f"[dim]You against {opponents} {session.difficulty.value} bots. "
                 "First to take every chip wins.[/dim]"
             )
-            session = _maybe_edit_local_table(reader=reader, console=console, table=session)
-            winner = play(session, console=console, reader=reader, display_name=name)
+            try:
+                session = _maybe_edit_local_table(reader=reader, console=console, table=session)
+            except (Cancelled, KeyboardInterrupt):
+                continue
+            try:
+                winner = play(session, console=console, reader=reader, display_name=name)
+            except (Cancelled, KeyboardInterrupt):
+                console.print("[yellow]You left the table.[/yellow]")
+                continue
             _announce_winner(console, winner)
-            wait_for_menu(reader=reader)
+            try:
+                wait_for_menu(reader=reader)
+            except (Cancelled, KeyboardInterrupt):
+                pass
             continue
 
         if choice is MenuOption.HOST:
-            session = _maybe_edit_table(reader=reader, console=console, table=session)
+            try:
+                session = _maybe_edit_table(reader=reader, console=console, table=session)
+            except (Cancelled, KeyboardInterrupt):
+                continue
             try:
                 host_result = host(
                     session,
@@ -94,16 +121,23 @@ def run_lobby(
                     display_name=name,
                 )
                 _announce_host_winner(console, host_result)
+            except (Cancelled, KeyboardInterrupt):
+                console.print("[yellow]You left the table.[/yellow]")
+                continue
             except (IrohUnavailable, ConnectionError) as exc:
                 console.print(f"[bold red]Online session failed:[/bold red] {exc}")
-            wait_for_menu(reader=reader)
+            try:
+                wait_for_menu(reader=reader)
+            except (Cancelled, KeyboardInterrupt):
+                pass
             continue
 
-        ticket = prompt_join_ticket(reader=reader, console=console, ticket=join_ticket)
-        join_ticket = None
-        if not ticket:
-            console.print("[red]A table ticket is required.[/red]")
+        try:
+            ticket = prompt_join_ticket(reader=reader, console=console, ticket=join_ticket)
+        except (Cancelled, KeyboardInterrupt):
+            join_ticket = None
             continue
+        join_ticket = None
         try:
             guest_result = join(
                 ticket,
@@ -115,9 +149,15 @@ def run_lobby(
                 console.print("[yellow]You left the table.[/yellow]")
             else:
                 _announce_guest_winner(console, guest_result)
+        except (Cancelled, KeyboardInterrupt):
+            console.print("[yellow]You left the table.[/yellow]")
+            continue
         except (IrohUnavailable, ConnectionError, ValueError) as exc:
             console.print(f"[bold red]Online session failed:[/bold red] {exc}")
-        wait_for_menu(reader=reader)
+        try:
+            wait_for_menu(reader=reader)
+        except (Cancelled, KeyboardInterrupt):
+            pass
 
 
 def _maybe_edit_table(
