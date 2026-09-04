@@ -103,5 +103,14 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# ruff
+.ruff_cache/
+
+# coverage
+coverage.xml
+
+# src-layout egg-info
+src/*.egg-info/
+
 # swap backup file
 .py.swp

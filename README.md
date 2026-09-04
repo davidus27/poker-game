@@ -1,72 +1,87 @@
-# Texas Hold'em poker
-Texas Hold'em poker is easy terminal game written in Python for educational purposes.
+# ♠ ♥  TEXAS HOLD'EM  ♦ ♣ 
 
+Texas Hold'em in CLI. Play locally against bots or host a peer-to-peer table via [Iroh](https://iroh.computer/) anywhere.
 
-## Table of contents
-* [Introduction](#Introduction)
-* [Installation](#Installation)
-* [Rules](#Rules)
-* [Testing](#Testing)
-* [TODO list](#TODO)
-* [License](#License)
+Requires **Python 3.11+**.
 
+## Play
 
-## Introduction
-Simple Poker game you can play in terminal or cmd prompt. 
-
-## Installation
-Program is written ins Python 3.x. 
-Here is the easy process to download and play the game
-
-```
-$git clone https://github.com/davidus27/pokerGame
-$cd pokerGame/game
-$python3 main.py
+```bash
+git clone https://github.com/davidus27/poker-game.git
+cd poker-game
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e .
+holdem play
 ```
 
-### Linux 
-For easier playing in terminal you just need to give the script permissions to execute:
-```
-$cd pokerGame
-$chmod +x game/main.py
-```
-now you can create alias in your __.bashrc__ file 
+For online play, install the optional Iroh binding:
 
-```
-alias name='path-to-the-program/pokerGame/game/main.py'
+```bash
+pip install -e ".[network]"
 ```
 
-### Windows
-If you are using Windows and want the .exe file you just need to install requirements
-``$pip3 install -r requirements.txt``
-and create executable file 
+The lobby supports local play, hosting, and joining. The host runs the
+authoritative game engine; guests receive only their seat-private snapshots.
 
-``$pyinstaller game/main.py``
- 
+Playing with people only requires to copy-paste starting ticket. You can play   
+together through internet or locally without needing any server!
+
+New local game shows the current table settings (6 players, 1000 chips, blinds
+5/10) and asks if you want to change them. Press Enter to keep the defaults.
+
+Each turn, pick a number from the legal-action menu. Hands keep going until
+one stack remains. After the game you return to the menu. `Ctrl+C` cancels.
+
+```bash
+holdem                         # same lobby as holdem play
+holdem play --name Dave
+holdem play --players 3 --stack 500 --blinds 1/2
+holdem host --seats 2          # prints a ticket to share
+holdem join TICKET             # connect to the host
+holdem play --seed 42          # same deals every time
+```
 
 
-## Rules
-It is very easy to play. 
-After the start the game will ask questions for creation of your character.
-On the first round your balance (money) and cards should be on the screen and you can play the game 
-by navigating through the numbers.
 
-## Testing
-TODO
+## Development
 
-## TODO
+```bash
+make install     # pip install -e ".[dev]"
+make test        # pytest with coverage
+make lint        # ruff check + format
+make typecheck   # mypy strict
+```
 
-- [x] Beta version of the game released
-- [x] Refactoring the codebase
-- [x] Working detection system of the hand values of individual players
-- [x] Ante binding for begining of the game
-- [x] Basic bots playing against the player
-- [ ] Unit testing
-- [ ] More advanced bots calculating strategy
-- [ ] Fixing wrong calculations of high cards
-- [ ] Changing order of players each round
-- [ ] basic GUI options
-- [ ] saving the game progress over time
+```bash
+pytest                                      # settings from pyproject.toml
+pytest -v tests/domain/test_hands.py        # hand-evaluation suite only
+```
+
+
+
+## Project layout
+
+```
+src/holdem/
+  domain/       # cards, hands, actions, events, seat views  – no I/O
+  engine/       # Table state machine, betting, side pots, streets
+  actors/       # LocalHuman, RandomBot, and actor protocols
+  protocol/     # Versioned JSON envelopes and private event filtering
+  connectors/   # In-memory test transport and Iroh adapter
+  ui/cli/       # Rich renderer and validated action/setup prompts
+  app/          # Local, host, and guest composition roots
+tests/
+  domain/       # hand evaluation + card codec
+  engine/       # blinds, streets, actions, pots, showdown, replay
+  actors/       # actor behavior
+  ui/           # renderer and prompt tests
+  protocol/     # envelope round trips and privacy
+  connectors/   # transport contract tests
+```
+
+
 
 ## License
-This project is licensed under the GNU General Public License - see the [LICENSE](LICENSE) file for details.
+
+GNU General Public License v3.0 – see [LICENSE](LICENSE).
