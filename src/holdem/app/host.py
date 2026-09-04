@@ -7,10 +7,11 @@ from collections.abc import Callable
 
 from rich.console import Console
 
-from holdem.app.online import DEFAULT_ACTION_TIMEOUT, play_host_session
+from holdem.app.online import DEFAULT_ACTION_TIMEOUT, HostResult, play_host_session
 from holdem.connectors import IrohConnector, PeerId
 from holdem.protocol import Envelope, ErrorMessage, Hello
 from holdem.ui.cli import PlayConfig, RichActionSource, RichView
+from holdem.ui.cli.prompts import prompt_next_hand
 
 
 def host_table(
@@ -20,7 +21,7 @@ def host_table(
     console: Console,
     reader: Callable[[str], str] = input,
     action_timeout: float | None = DEFAULT_ACTION_TIMEOUT,
-) -> int:
+) -> HostResult:
     """Host an Iroh table until the tournament ends."""
 
     return asyncio.run(
@@ -41,7 +42,7 @@ async def _host_table(
     console: Console,
     reader: Callable[[str], str],
     action_timeout: float | None,
-) -> int:
+) -> HostResult:
     connector, ticket = await IrohConnector.host()
     try:
         console.print("[bold]Host a table[/bold]")
@@ -62,7 +63,7 @@ async def _host_table(
             )
         seat_names = {0: display_name}
         seat_names.update({seat: name for seat, name in guests.values()})
-        return await play_host_session(
+        winner = await play_host_session(
             config,
             connector,
             guests,
@@ -74,6 +75,9 @@ async def _host_table(
                 seat_names=seat_names,
             ),
             action_timeout=action_timeout,
+            on_continue=lambda: prompt_next_hand(reader=reader),
         )
+        names = tuple(seat_names[seat] for seat in range(config.players))
+        return HostResult(winner=winner, names=names)
     finally:
         await connector.close()

@@ -14,9 +14,9 @@ from rich.text import Text
 from holdem.domain.actions import ActionKind
 from holdem.domain.cards import Card, HandRank, HandScore
 from holdem.domain.events import (
+    ActionRequested,
     BlindPosted,
     Event,
-    HandEnded,
     HandStarted,
     HoleDealt,
     PlayerActed,
@@ -73,6 +73,9 @@ class RichView:
         self._headline: str | None = None
         self._log: list[str] = []
         self._seat_last: dict[int, str] = {}
+        self._showdown: Showdown | None = None
+        self._awards: PotsAwarded | None = None
+        self._tournament: TournamentEnded | None = None
 
     def render(
         self,
@@ -139,11 +142,17 @@ class RichView:
         felt.add_row(Text(""))
         if spectating:
             felt.add_row(Text("Spectating — you are out", style="bold dim"))
-        else:
+        elif self._showdown is None:
             felt.add_row(Text("Your hand", style="bold"))
             felt.add_row(Align.center(hole_row(view.hole)))
 
-        street = _STREET_TITLES.get(view.street, view.street.value)
+        if view.street is Street.TOURNAMENT_OVER:
+            street = _STREET_TITLES[Street.TOURNAMENT_OVER]
+        elif self._showdown is not None:
+            street = _STREET_TITLES[Street.SHOWDOWN]
+        else:
+            street = _STREET_TITLES.get(view.street, view.street.value)
+        settled = self._has_result()
         headline = self._headline or "Waiting for action…"
         history = self._log[-_LOG_LIMIT:]
         if history and history[-1] == headline:
@@ -154,19 +163,30 @@ class RichView:
             latest.append("\n")
             latest.append("\n".join(history), style="dim")
 
-        return Group(
+        sections: list[RenderableType] = [
             Align.center(logo_mark()),
-            Text(f"Hand {view.hand_number}  ·  {street}", style="bold", justify="center"),
+            Text(
+                f"Hand {view.hand_number}  ·  {street}",
+                style="bold gold1" if settled else "bold",
+                justify="center",
+            ),
             Panel(felt, title="The felt", border_style="blue"),
-            Panel(seats, title="Table", border_style="cyan"),
-            Panel(latest, title="Latest", border_style="magenta"),
-        )
+        ]
+        result = self._result_panel(view)
+        if result is not None:
+            sections.append(result)
+        sections.append(Panel(seats, title="Table", border_style="cyan"))
+        sections.append(Panel(latest, title="Latest", border_style="magenta"))
+        return Group(*sections)
 
     def _ingest(self, events: Sequence[Event], viewer: int) -> None:
         for event in events:
             if isinstance(event, HandStarted):
                 self._seat_last.clear()
                 self._log.clear()
+                self._showdown = None
+                self._awards = None
+                self._tournament = None
                 line = f"Hand {event.hand_number} dealt."
                 self._push(line)
             elif isinstance(event, BlindPosted):
@@ -179,6 +199,11 @@ class RichView:
             elif isinstance(event, HoleDealt):
                 if event.seat_id == viewer:
                     self._push("Your hole cards were dealt.")
+            elif isinstance(event, ActionRequested):
+                who = self._who(event.seat_id, viewer)
+                self._headline = (
+                    "Your turn." if event.seat_id == viewer else f"Waiting for {who} to act…"
+                )
             elif isinstance(event, PlayerActed):
                 line = self._action_line(event, viewer)
                 self._seat_last[event.seat_id] = self._action_short(event)
@@ -188,27 +213,16 @@ class RichView:
                 line = f"{street} dealt: {cards_text(event.cards).plain}"
                 self._push(line)
             elif isinstance(event, Showdown):
-                shown = "; ".join(
-                    f"{self._who(hand.seat_id, viewer)} — {describe_hand(hand.score)} "
-                    f"(hole {cards_text(hand.hole).plain})"
-                    for hand in event.revelations
-                )
-                self._push(f"Showdown: {shown}.")
+                self._showdown = event
             elif isinstance(event, PotsAwarded):
-                awards = ", ".join(
-                    f"{award.amount:,} to "
-                    + ", ".join(self._who(seat, viewer) for seat in award.winners)
-                    for award in event.awards
-                )
-                self._push(f"Pot awarded: {awards}." if awards else "No pot awarded.")
+                self._awards = event
             elif isinstance(event, PlayerBusted):
                 self._push(f"{self._who(event.seat_id, viewer)} busted.")
             elif isinstance(event, TournamentEnded):
+                self._tournament = event
                 who = self._who(event.winner, viewer)
                 verb = "win" if who == "You" else "wins"
                 self._push(f"{who} {verb} the game!")
-            elif isinstance(event, HandEnded):
-                self._push(f"Hand {event.hand_number} ended.")
 
     def _push(self, line: str) -> None:
         self._headline = line
@@ -221,10 +235,115 @@ class RichView:
             return self.display_name
         return self.seat_names.get(seat_id, f"Bot {seat_id}")
 
+    def _has_result(self) -> bool:
+        return self._showdown is not None or self._awards is not None
+
+    def _result_panel(self, view: SeatView) -> Panel | None:
+        if not self._has_result():
+            return None
+
+        body = Table.grid(expand=True, padding=(0, 0))
+        body.add_column(justify="center")
+        for line in self._verdict_lines(view.seat_id):
+            body.add_row(Text(line, style="bold gold1"))
+        if self._showdown is not None:
+            body.add_row(Text(""))
+            body.add_row(self._showdown_hands(view.seat_id))
+        else:
+            folded = self._folded_line(view)
+            if folded is not None:
+                body.add_row(Text(folded, style="dim italic"))
+
+        title = "Showdown" if self._showdown is not None else "Winner"
+        return Panel(body, title=title, border_style="gold1")
+
+    def _showdown_hands(self, viewer: int) -> Table:
+        assert self._showdown is not None
+        revelations = self._showdown.revelations
+        winners = self._winner_seats()
+        hands = Table(expand=True, box=None, show_header=False, pad_edge=False)
+        for _ in revelations:
+            hands.add_column(justify="center", ratio=1)
+
+        names: list[Text] = []
+        cards: list[Align] = []
+        made: list[Text] = []
+        for hand in revelations:
+            who = self._who(hand.seat_id, viewer)
+            won = hand.seat_id in winners
+            style = "bold green" if won else "bold dim"
+            label = f"{who}  ★" if won else who
+            names.append(Text(label, style=style, justify="center"))
+            cards.append(Align.center(hole_row(hand.hole)))
+            made.append(
+                Text(
+                    f"{who} — {describe_hand(hand.score)}",
+                    style="green" if won else "dim",
+                    justify="center",
+                )
+            )
+        hands.add_row(*names)
+        hands.add_row(*cards)
+        hands.add_row(*made)
+        return hands
+
+    def _verdict_lines(self, viewer: int) -> list[str]:
+        lines: list[str] = []
+        if self._awards is not None:
+            lines.append(self._awards_summary(self._awards, viewer))
+        if self._tournament is not None:
+            who = self._who(self._tournament.winner, viewer)
+            verb = "win" if who == "You" else "wins"
+            lines.append(f"{who} {verb} the game!")
+        return lines
+
+    def _awards_summary(self, awarded: PotsAwarded, viewer: int) -> str:
+        if not awarded.awards:
+            return "No pot awarded."
+        if len(awarded.awards) == 1:
+            award = awarded.awards[0]
+            return self._pot_won_line(award.winners, award.amount, viewer)
+        parts = []
+        for index, award in enumerate(awarded.awards):
+            label = "Main pot" if index == 0 else f"Side pot {index}"
+            names = _join_names([self._who(seat, viewer) for seat in award.winners])
+            parts.append(f"{label} {award.amount:,} to {names}")
+        return ". ".join(parts) + "."
+
+    def _pot_won_line(self, winners: tuple[int, ...], amount: int, viewer: int) -> str:
+        names = [self._who(seat, viewer) for seat in winners]
+        if len(names) == 1:
+            who = names[0]
+            verb = "win" if who == "You" else "wins"
+            return f"{who} {verb} {amount:,}."
+        return f"{_join_names(names)} split {amount:,}."
+
+    def _winner_seats(self) -> frozenset[int]:
+        if self._awards is None:
+            return frozenset()
+        winners: set[int] = set()
+        for award in self._awards.awards:
+            winners.update(award.winners)
+        return frozenset(winners)
+
+    def _folded_line(self, view: SeatView) -> str | None:
+        folded = [
+            self._who(seat.seat_id, view.seat_id)
+            for seat in view.seats
+            if seat.status is SeatStatus.FOLDED
+        ]
+        if not folded:
+            return None
+        if len(folded) == 1:
+            return f"{folded[0]} folded."
+        return f"{_join_names(folded)} folded."
+
     @staticmethod
     def _board_caption(view: SeatView) -> str:
         dealt = len(view.board)
         if dealt == 0:
+            if view.street in {Street.HAND_OVER, Street.TOURNAMENT_OVER, Street.SHOWDOWN}:
+                return "Board  ·  folded before the flop"
             return "Board  ·  waiting for the flop"
         if dealt == 3:
             return "Board  ·  flop"
@@ -264,6 +383,14 @@ class RichView:
             return f"{verb} to {amount:,}"
         verb = "go" if first_person else "goes"
         return f"{verb} all in ({event.street_bet:,})"
+
+
+def _join_names(names: Sequence[str]) -> str:
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f"{names[0]} and {names[1]}"
+    return f"{', '.join(names[:-1])}, and {names[-1]}"
 
 
 def describe_hand(score: HandScore) -> str:

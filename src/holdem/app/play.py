@@ -12,10 +12,11 @@ from holdem.actors import Actor, LocalHuman, RandomBot
 from holdem.domain.views import SeatStatus
 from holdem.engine import Table
 from holdem.ui.cli import PlayConfig, RichActionSource, RichView
-from holdem.ui.cli.prompts import prompt_bust_choice
+from holdem.ui.cli.prompts import prompt_bust_choice, prompt_next_hand
 
 Pause = Callable[[float], None]
 BustChoice = Callable[[], bool]
+ContinueHand = Callable[[], None]
 
 BOT_THINK_MIN = 0.45
 BOT_THINK_MAX = 1.6
@@ -30,11 +31,15 @@ def play_local(
     display_name: str = "You",
     pause: Pause | None = None,
     on_bust: BustChoice | None = None,
+    on_continue: ContinueHand | None = None,
 ) -> int | None:
     """Run a tournament. Return the winning seat, or None if the human left after busting."""
 
     output = console or Console()
     wait = pause if pause is not None else time.sleep
+    acknowledge = (
+        on_continue if on_continue is not None else (lambda: prompt_next_hand(reader=reader))
+    )
     random_source = random.Random(config.seed)
     think_rng = random.Random(random_source.getrandbits(64))
     table = Table(
@@ -77,6 +82,7 @@ def play_local(
                 wait(BOT_REVEAL_PAUSE)
         if table.is_tournament_over:
             break
+        acknowledge()
         if _is_busted(table, human_seat) and not spectating:
             spectating = _ask_spectate(output, reader, on_bust)
             if not spectating:

@@ -7,7 +7,7 @@ from io import StringIO
 from rich.console import Console
 
 from holdem.app.lobby import run_lobby
-from holdem.app.online import GuestResult
+from holdem.app.online import GuestResult, HostResult
 from holdem.ui.cli import MenuOption, PlayConfig
 
 
@@ -77,7 +77,10 @@ def test_host_and_join_run_online_sessions() -> None:
         console=console,
         reader=lambda _prompt: next(responses),
         play=lambda *_args, **_kwargs: played.append(PlayConfig()) or 0,
-        host=lambda config, **kwargs: hosted.append((config, str(kwargs["display_name"]))) or 0,
+        host=lambda config, **kwargs: (
+            hosted.append((config, str(kwargs["display_name"])))
+            or HostResult(winner=2, names=("Sam", "T1", "T2"))
+        ),
         join=lambda ticket, **kwargs: (
             joined.append((ticket, str(kwargs["display_name"])))
             or GuestResult(winner=0, local_seat=1, names=("Host", "Sam"))
@@ -90,7 +93,8 @@ def test_host_and_join_run_online_sessions() -> None:
     assert joined == [("friend-ticket", "Sam")]
     assert "Host a table" in output
     assert "Join a table" in output
-    assert "Sam won!" in output
+    assert "T2 won." in output
+    assert "Seat 2" not in output
     assert "Host won." in output
 
 

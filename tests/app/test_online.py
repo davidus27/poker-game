@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
 
 from holdem.app.online import play_guest_session, play_host_session
 from holdem.connectors import InMemoryConnector
-from holdem.domain import Action, SeatView
+from holdem.domain import Action, SeatView, Street
+from holdem.engine import Table
+from holdem.protocol import Envelope, State, Welcome
 from holdem.ui.cli import PlayConfig
 
 
@@ -14,7 +17,12 @@ class _View:
     def __init__(self) -> None:
         self.snapshots: list[SeatView] = []
 
-    def render(self, _events: object, view: SeatView) -> None:
+    def render(
+        self,
+        _events: object,
+        view: SeatView,
+        **_kwargs: object,
+    ) -> None:
         self.snapshots.append(view)
 
 
@@ -49,11 +57,42 @@ def test_in_memory_host_guest_play_a_full_tournament() -> None:
         )
         host_winner, guest_result = await asyncio.gather(host_game, guest_game)
 
+        assert guest_result is not None
         assert host_winner == guest_result.winner
         assert guest_result.local_seat == 1
         assert guest_result.names == ("Host", "Guest")
         assert host_view.snapshots
         assert guest_views[0].snapshots
         assert all(len(view.hole) in {0, 2} for view in guest_views[0].snapshots)
+
+    asyncio.run(scenario())
+
+
+def test_busted_guest_can_leave_while_the_table_continues() -> None:
+    async def scenario() -> None:
+        host, guest = InMemoryConnector.pair()
+        renderer = _View()
+        busted = replace(
+            Table([100, 0, 100]).seat_view(1),
+            street=Street.HAND_OVER,
+        )
+        guest_game = asyncio.create_task(
+            play_guest_session(
+                guest,
+                guest.remote_id,
+                source=lambda _view: Action.check(),
+                renderer_factory=lambda _name, _names: renderer,  # type: ignore[arg-type]
+                on_bust=lambda: False,
+            )
+        )
+
+        await host.send(
+            host.remote_id,
+            Envelope(Welcome(1, ("Host", "Guest", "Other"), busted)),
+        )
+        await host.send(host.remote_id, Envelope(State((), busted)))
+
+        assert await guest_game is None
+        assert renderer.snapshots[-1] == busted
 
     asyncio.run(scenario())

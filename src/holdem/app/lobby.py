@@ -8,7 +8,7 @@ from rich.console import Console
 
 from holdem.app.host import host_table
 from holdem.app.join import join_table
-from holdem.app.online import GuestResult
+from holdem.app.online import GuestResult, HostResult
 from holdem.app.play import play_local
 from holdem.connectors import IrohUnavailable
 from holdem.ui.cli.lobby import (
@@ -24,8 +24,8 @@ from holdem.ui.cli.lobby import (
 from holdem.ui.cli.prompts import LineReader, PlayConfig
 
 PlayFn = Callable[..., int | None]
-HostFn = Callable[..., int]
-JoinFn = Callable[..., GuestResult]
+HostFn = Callable[..., HostResult]
+JoinFn = Callable[..., GuestResult | None]
 
 
 def run_lobby(
@@ -82,13 +82,13 @@ def run_lobby(
         if choice is MenuOption.HOST:
             session = _maybe_edit_table(reader=reader, console=console, table=session)
             try:
-                winner = host(
+                host_result = host(
                     session,
                     console=console,
                     reader=reader,
                     display_name=name,
                 )
-                _announce_online_winner(console, winner, name)
+                _announce_host_winner(console, host_result)
             except (IrohUnavailable, ConnectionError) as exc:
                 console.print(f"[bold red]Online session failed:[/bold red] {exc}")
             wait_for_menu(reader=reader)
@@ -100,13 +100,16 @@ def run_lobby(
             console.print("[red]A table ticket is required.[/red]")
             continue
         try:
-            result = join(
+            guest_result = join(
                 ticket,
                 console=console,
                 reader=reader,
                 display_name=name,
             )
-            _announce_guest_winner(console, result)
+            if guest_result is None:
+                console.print("[yellow]You left the table.[/yellow]")
+            else:
+                _announce_guest_winner(console, guest_result)
         except (IrohUnavailable, ConnectionError, ValueError) as exc:
             console.print(f"[bold red]Online session failed:[/bold red] {exc}")
         wait_for_menu(reader=reader)
@@ -132,11 +135,12 @@ def _announce_winner(console: Console, winner: int | None) -> None:
         console.print(f"[bold]Bot {winner} won.[/bold]")
 
 
-def _announce_online_winner(console: Console, winner: int, display_name: str) -> None:
-    if winner == 0:
-        console.print(f"[bold green]{display_name} won![/bold green]")
+def _announce_host_winner(console: Console, result: HostResult) -> None:
+    winner_name = result.names[result.winner]
+    if result.winner == 0:
+        console.print(f"[bold green]{winner_name} won![/bold green]")
     else:
-        console.print(f"[bold]Seat {winner} won.[/bold]")
+        console.print(f"[bold]{winner_name} won.[/bold]")
 
 
 def _announce_guest_winner(console: Console, result: GuestResult) -> None:

@@ -8,7 +8,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 
 from holdem.connectors import Connector, PeerDisconnected, PeerId
-from holdem.domain import Action, ActionKind, Event, SeatView, Street
+from holdem.domain import Action, ActionKind, Event, SeatStatus, SeatView, Street
 from holdem.engine import IllegalAction, Table
 from holdem.protocol import (
     ActionSubmitted,
@@ -23,12 +23,19 @@ from holdem.ui.cli.renderer import RichView
 
 DEFAULT_ACTION_TIMEOUT = 60.0
 ActionSource = Callable[[SeatView], Action]
+ContinueHand = Callable[[], None]
 
 
 @dataclass(frozen=True)
 class GuestResult:
     winner: int
     local_seat: int
+    names: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class HostResult:
+    winner: int
     names: tuple[str, ...]
 
 
@@ -41,6 +48,7 @@ async def play_host_session(
     source: ActionSource,
     renderer: RichView,
     action_timeout: float | None = DEFAULT_ACTION_TIMEOUT,
+    on_continue: ContinueHand | None = None,
 ) -> int:
     """Run the authoritative engine and service already-handshaken guests."""
 
@@ -92,6 +100,8 @@ async def play_host_session(
                 continue
             await _publish(table, events, connector, guests, renderer, disconnected)
         if not table.is_tournament_over:
+            if on_continue is not None:
+                on_continue()
             events = table.start_hand()
             await _publish(table, events, connector, guests, renderer, disconnected)
 
@@ -105,7 +115,8 @@ async def play_guest_session(
     *,
     source: ActionSource,
     renderer_factory: Callable[[str, Mapping[int, str]], RichView],
-) -> GuestResult:
+    on_bust: Callable[[], bool] | None = None,
+) -> GuestResult | None:
     """Render host snapshots and submit actions when this guest is requested."""
 
     peer, envelope = await connector.recv()
@@ -116,6 +127,7 @@ async def play_guest_session(
     seat_names = dict(enumerate(welcome.names))
     renderer = renderer_factory(own_name, seat_names)
     renderer.render((), welcome.view)
+    spectating = False
 
     while True:
         peer, envelope = await connector.recv()
@@ -126,7 +138,8 @@ async def play_guest_session(
             continue
         if not isinstance(payload, State):
             raise ConnectionError(f"unexpected host message {envelope.type!r}")
-        renderer.render(payload.events, payload.view)
+        busted = _is_busted(payload.view)
+        renderer.render(payload.events, payload.view, spectating=spectating or busted)
         if payload.view.street is Street.TOURNAMENT_OVER:
             winner = max(payload.view.seats, key=lambda seat: seat.stack).seat_id
             return GuestResult(
@@ -134,6 +147,10 @@ async def play_guest_session(
                 local_seat=welcome.seat_id,
                 names=welcome.names,
             )
+        if busted and not spectating:
+            if on_bust is not None and not on_bust():
+                return None
+            spectating = True
         if payload.view.to_act == payload.view.seat_id:
             await connector.send(host, Envelope(ActionSubmitted(source(payload.view))))
 
@@ -146,7 +163,12 @@ async def _publish(
     renderer: RichView,
     disconnected: set[PeerId],
 ) -> None:
-    renderer.render(events_for_seat(events, 0), table.seat_view(0))
+    host_view = table.seat_view(0)
+    renderer.render(
+        events_for_seat(events, 0),
+        host_view,
+        spectating=_is_busted(host_view),
+    )
     for peer, (seat, _name) in guests.items():
         if peer in disconnected:
             continue
@@ -211,3 +233,10 @@ def _peer_for_seat(
         if seat == seat_id:
             return peer
     raise ConnectionError(f"seat {seat_id} has no connected peer")
+
+
+def _is_busted(view: SeatView) -> bool:
+    return (
+        next(seat for seat in view.seats if seat.seat_id == view.seat_id).status
+        is SeatStatus.BUSTED
+    )

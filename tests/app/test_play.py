@@ -34,6 +34,7 @@ def test_bot_turns_pause_for_thinking_and_reveal(monkeypatch: MonkeyPatch) -> No
         PlayConfig(players=2, starting_stack=50, small_blind=1, big_blind=2, seed=1),
         console=console,
         pause=pauses.append,
+        on_continue=lambda: None,
     )
 
     assert winner in {0, 1}
@@ -58,6 +59,7 @@ def test_busted_human_can_leave_instead_of_watching_bots(monkeypatch: MonkeyPatc
         console=console,
         pause=lambda _seconds: None,
         on_bust=leave,
+        on_continue=lambda: None,
     )
 
     assert asked["n"] == 1
@@ -74,7 +76,27 @@ def test_busted_human_can_spectate_until_a_bot_wins(monkeypatch: MonkeyPatch) ->
         console=console,
         pause=lambda _seconds: None,
         on_bust=lambda: True,
+        on_continue=lambda: None,
     )
 
     assert result in {1, 2, 3}
     assert "Spectating the rest of the table." in stream.getvalue()
+
+
+def test_hand_result_waits_before_the_next_deal(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(play_mod, "RichActionSource", _SafeHuman)
+    prompts: list[str] = []
+
+    def reader(prompt: str) -> str:
+        prompts.append(prompt)
+        return ""
+
+    console = Console(file=StringIO(), force_terminal=False, width=100)
+    play_mod.play_local(
+        PlayConfig(players=2, starting_stack=50, small_blind=1, big_blind=2, seed=1),
+        console=console,
+        reader=reader,
+        pause=lambda _seconds: None,
+    )
+
+    assert any("next hand" in prompt.lower() for prompt in prompts)

@@ -10,7 +10,7 @@ from rich.console import Console
 from holdem.app.online import GuestResult, play_guest_session
 from holdem.connectors import IrohConnector
 from holdem.protocol import Envelope, Hello
-from holdem.ui.cli import RichActionSource, RichView
+from holdem.ui.cli import RichActionSource, RichView, prompt_bust_choice
 
 
 def join_table(
@@ -19,7 +19,7 @@ def join_table(
     display_name: str,
     console: Console,
     reader: Callable[[str], str] = input,
-) -> GuestResult:
+) -> GuestResult | None:
     """Join an Iroh table and play until the tournament ends."""
 
     return asyncio.run(
@@ -38,7 +38,7 @@ async def _join_table(
     display_name: str,
     console: Console,
     reader: Callable[[str], str],
-) -> GuestResult:
+) -> GuestResult | None:
     connector, host = await IrohConnector.join(ticket)
     try:
         await connector.send(host, Envelope(Hello(display_name)))
@@ -52,6 +52,7 @@ async def _join_table(
                 display_name=name,
                 seat_names=names,
             ),
+            on_bust=lambda: prompt_bust_choice(reader=reader, console=console) == "spectate",
         )
     finally:
         await connector.close()

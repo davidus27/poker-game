@@ -10,9 +10,13 @@ from rich.console import Console
 from holdem.domain import (
     Action,
     ActionKind,
+    ActionRequested,
+    HandStarted,
     HoleDealt,
     LegalAction,
     PlayerActed,
+    PotAward,
+    PotsAwarded,
     PotView,
     PublicSeat,
     SeatStatus,
@@ -144,16 +148,85 @@ def test_showdown_names_each_made_hand() -> None:
                 ShowdownHand(0, (you[0], you[1]), find_best_hand(list(board), list(you))),
                 ShowdownHand(1, (bot[0], bot[1]), find_best_hand(list(board), list(bot))),
             )
-        )
+        ),
+        PotsAwarded((PotAward(0, 4_220, (0,), (4_220,)),)),
     ]
 
-    renderer.render(events, replace(_view(), board=board, hole=you))
+    renderer.render(events, replace(_view(), board=board, hole=you, street=Street.HAND_OVER))
     output = stream.getvalue()
 
+    assert "Showdown" in output
+    assert "You win 4,220." in output
     assert "one pair" in output
     assert "high card" in output
     assert "You — one pair" in output
     assert "Bot 1 — high card" in output
+    assert "Your hand" not in output
+
+
+def test_fold_win_shows_a_winner_panel_and_holds_the_board() -> None:
+    console, stream = _console()
+    renderer = RichView(console=console, clear_screen=False, display_name="Dave")
+    view = replace(
+        _view(),
+        street=Street.HAND_OVER,
+        hand_number=3,
+        board=(),
+        hole=parse_cards("Ah Jh"),
+        to_act=None,
+        legal_actions=(),
+        pot_total=20,
+        pots=(PotView(20, frozenset({0})),),
+        seats=(
+            PublicSeat(0, 1_216, SeatStatus.ALL_IN, 1_206, 1_206),
+            PublicSeat(1, 784, SeatStatus.FOLDED, 10, 10),
+        ),
+    )
+
+    renderer.render(
+        [PotsAwarded((PotAward(0, 20, (0,), (20,)),))],
+        view,
+    )
+    output = stream.getvalue()
+
+    assert "Winner" in output
+    assert "Dave wins 20." in output
+    assert "Bot 1 folded." in output
+    assert "folded before the flop" in output
+    assert "Hand over" in output
+    assert "Showdown" not in output
+    assert "waiting for the flop" not in output
+
+
+def test_next_hand_clears_the_result_panel() -> None:
+    console, stream = _console()
+    renderer = RichView(console=console, clear_screen=False)
+    board = parse_cards("3h 2d 8c 5d Qd")
+    you = parse_cards("2h Th")
+    bot = parse_cards("Jh 4h")
+    renderer.render(
+        [
+            Showdown(
+                revelations=(
+                    ShowdownHand(0, (you[0], you[1]), find_best_hand(list(board), list(you))),
+                    ShowdownHand(1, (bot[0], bot[1]), find_best_hand(list(board), list(bot))),
+                )
+            ),
+            PotsAwarded((PotAward(0, 4_220, (0,), (4_220,)),)),
+        ],
+        replace(_view(), board=board, hole=you, street=Street.HAND_OVER),
+    )
+    start = stream.tell()
+    renderer.render(
+        [HandStarted(4, 1, (90, 80))],
+        replace(_view(), street=Street.PREFLOP, hand_number=4, board=(), hole=parse_cards("4c Jh")),
+    )
+    later = stream.getvalue()[start:]
+
+    assert "You win 4,220." not in later
+    assert "Showdown" not in later
+    assert "Hand 4" in later
+    assert "Preflop" in later
 
 
 def test_local_player_actions_use_first_person() -> None:
@@ -182,6 +255,19 @@ def test_named_local_player_uses_third_person_grammar() -> None:
     output = stream.getvalue()
     assert "Dave calls 10." in output
     assert "Dave wins the game!" in output
+
+
+def test_renderer_identifies_the_player_whose_turn_is_pending() -> None:
+    console, stream = _console()
+    renderer = RichView(
+        console=console,
+        clear_screen=False,
+        seat_names={1: "Ava"},
+    )
+
+    renderer.render([ActionRequested(1)], _view())
+
+    assert "Waiting for Ava to act…" in stream.getvalue()
 
 
 def test_spectating_hides_hole_cards() -> None:

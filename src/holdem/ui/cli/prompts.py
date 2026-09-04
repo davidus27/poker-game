@@ -211,6 +211,15 @@ def prompt_play_config(
             output.print(f"[red]{exc}[/red] Choose a larger stack or smaller blinds.")
 
 
+NEXT_HAND_PROMPT = "Press Enter for the next hand: "
+
+
+def prompt_next_hand(*, reader: LineReader = input) -> None:
+    """Hold the hand-over screen until the player is ready to continue."""
+
+    reader(NEXT_HAND_PROMPT)
+
+
 def prompt_bust_choice(
     *,
     reader: LineReader = input,
