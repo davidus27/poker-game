@@ -121,4 +121,4 @@ def main(argv: Sequence[str] | None = None) -> None:
             join_ticket=ticket,
         )
     except (EOFError, KeyboardInterrupt):
-        console.print("\n[yellow]Game cancelled.[/yellow]")
+        console.print("\nSee you at the table.")

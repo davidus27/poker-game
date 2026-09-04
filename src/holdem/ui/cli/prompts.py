@@ -10,6 +10,7 @@ from rich.console import Console
 from holdem.actors import BotDifficulty
 from holdem.domain.actions import Action, ActionKind
 from holdem.domain.views import LegalAction, SeatView
+from holdem.ui.cli.interact import Prompter
 
 LineReader = Callable[[str], str]
 
@@ -198,13 +199,25 @@ def _read_difficulty(
     console: Console,
     default: BotDifficulty = BotDifficulty.MEDIUM,
 ) -> BotDifficulty:
-    choices = "/".join(difficulty.value for difficulty in BotDifficulty)
-    while True:
-        raw = reader(f"Bot difficulty [{default.value}]: ").strip().lower()
-        try:
-            return default if not raw else BotDifficulty(raw)
-        except ValueError:
-            console.print(f"[red]Choose one of: {choices}.[/red]")
+    choices = [(difficulty.value.title(), difficulty) for difficulty in BotDifficulty]
+
+    def difficulty_reader(_prompt: str) -> str:
+        answer = reader(f"Bot difficulty [{default.value}]: ").strip().lower()
+        if not answer:
+            return str(list(BotDifficulty).index(default) + 1)
+        aliases = {choice.value: str(index) for index, choice in enumerate(BotDifficulty, start=1)}
+        selected = aliases.get(answer)
+        if selected is None and not answer.isdigit():
+            available = "/".join(choice.value for choice in BotDifficulty)
+            console.print(f"[red]Choose one of: {available}.[/red]")
+        return answer if selected is None else selected
+
+    selection_reader = reader if reader is input else difficulty_reader
+    return Prompter(reader=selection_reader, console=console).select(
+        f"Bot difficulty (current: {default.value})",
+        choices,
+        allow_back=True,
+    )
 
 
 def prompt_play_config(
@@ -292,20 +305,25 @@ def prompt_bust_choice(
     reader: LineReader = input,
     console: Console | None = None,
 ) -> str:
-    """Ask a busted player to leave or keep watching. Enter leaves."""
+    """Ask a busted player to leave or keep watching."""
 
     output = console or Console()
     output.print()
     output.print("[bold red]You're out of chips.[/bold red]")
-    output.print("  [cyan]1[/cyan]. Leave the table")
-    output.print("  [cyan]2[/cyan]. Spectate the rest of the game")
-    while True:
-        raw = reader("Choose [1]: ").strip().lower()
-        if raw in {"", "1", "l", "leave"}:
-            return "leave"
-        if raw in {"2", "s", "spectate"}:
-            return "spectate"
-        output.print("[red]Choose 1 to leave or 2 to spectate.[/red]")
+
+    def bust_reader(prompt: str) -> str:
+        answer = reader(prompt).strip().lower()
+        aliases = {"": "1", "l": "1", "leave": "1", "s": "2", "spectate": "2"}
+        return aliases.get(answer, answer)
+
+    selection_reader = reader if reader is input else bust_reader
+    return Prompter(reader=selection_reader, console=output).select(
+        "What would you like to do?",
+        (
+            ("Leave the table", "leave"),
+            ("Spectate the rest of the game", "spectate"),
+        ),
+    )
 
 
 class RichActionSource:
@@ -324,17 +342,11 @@ class RichActionSource:
         if not view.legal_actions:
             raise ValueError(f"seat {view.seat_id} has no legal actions")
 
-        choices = {str(index): legal for index, legal in enumerate(view.legal_actions, start=1)}
-        self.console.print("[bold]Your action[/bold]")
-        for key, legal in choices.items():
-            self.console.print(f"  [cyan]{key}[/cyan]. {self._label(legal, view)}")
-
-        while True:
-            selected = choices.get(self.reader("Choose action: ").strip())
-            if selected is None:
-                self.console.print("[red]Choose one of the listed numbers.[/red]")
-                continue
-            return self._materialize(selected)
+        selected = Prompter(reader=self.reader, console=self.console).select(
+            "Your action",
+            tuple((self._label(legal, view), legal) for legal in view.legal_actions),
+        )
+        return self._materialize(selected)
 
     def _materialize(self, legal: LegalAction) -> Action:
         if legal.kind == ActionKind.FOLD:

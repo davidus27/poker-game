@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from io import StringIO
 
+import pytest
 from rich.console import Console
 
 from holdem.actors import BotDifficulty
 from holdem.app.lobby import run_lobby
 from holdem.app.online import GuestResult, HostResult
 from holdem.ui.cli import MenuOption, PlayConfig
+from holdem.ui.cli.interact import Cancelled
 
 
 def _console() -> tuple[Console, StringIO]:
@@ -176,3 +178,100 @@ def test_invalid_menu_choice_retries() -> None:
     )
 
     assert "Choose one of the listed numbers." in stream.getvalue()
+
+
+@pytest.mark.parametrize("flow", ["local", "host", "join"])
+def test_back_from_nested_lobby_flow_returns_to_menu(flow: str) -> None:
+    console, stream = _console()
+    responses = {
+        "local": ["Sam", "1", "back", "6"],
+        "host": ["Sam", "2", "back", "6"],
+        "join": ["Sam", "3", "", "6"],
+    }[flow]
+    calls: list[str] = []
+
+    run_lobby(
+        console=console,
+        reader=lambda _prompt: responses.pop(0),
+        play=lambda *_args, **_kwargs: calls.append("local") or 0,
+        host=lambda *_args, **_kwargs: calls.append("host") or HostResult(winner=0, names=("Sam",)),
+        join=lambda *_args, **_kwargs: (
+            calls.append("join") or GuestResult(winner=0, local_seat=0, names=("Sam",))
+        ),
+    )
+
+    assert calls == []
+    assert "A table ticket is required." not in stream.getvalue()
+    assert "See you at the table." in stream.getvalue()
+
+
+@pytest.mark.parametrize(
+    ("flow", "responses", "interruption"),
+    [
+        ("local", ["Sam", "1", "", "", "6"], Cancelled()),
+        ("host", ["Sam", "2", "", "6"], KeyboardInterrupt()),
+        ("join", ["Sam", "3", "friend-ticket", "6"], Cancelled()),
+    ],
+)
+def test_cancelling_a_table_returns_to_the_menu(
+    flow: str,
+    responses: list[str],
+    interruption: BaseException,
+) -> None:
+    console, stream = _console()
+    calls: list[str] = []
+
+    def cancel(*_args: object, **_kwargs: object) -> None:
+        calls.append(flow)
+        raise interruption
+
+    overrides = {
+        "play": cancel if flow == "local" else lambda *_args, **_kwargs: 0,
+        "host": cancel
+        if flow == "host"
+        else lambda *_args, **_kwargs: HostResult(winner=0, names=("Sam",)),
+        "join": cancel
+        if flow == "join"
+        else lambda *_args, **_kwargs: GuestResult(
+            winner=0,
+            local_seat=0,
+            names=("Sam",),
+        ),
+    }
+    run_lobby(
+        console=console,
+        reader=lambda _prompt: responses.pop(0),
+        **overrides,
+    )
+
+    assert calls == [flow]
+    assert "You left the table." in stream.getvalue()
+    assert "See you at the table." in stream.getvalue()
+
+
+def test_ctrl_c_at_first_name_prompt_quits_cleanly() -> None:
+    console, stream = _console()
+
+    def interrupt(_prompt: str) -> str:
+        raise KeyboardInterrupt
+
+    run_lobby(console=console, reader=interrupt)
+
+    assert "See you at the table." in stream.getvalue()
+
+
+def test_ctrl_c_at_main_menu_quits_cleanly() -> None:
+    console, stream = _console()
+    responses = iter(["Sam"])
+
+    def reader(_prompt: str) -> str:
+        try:
+            return next(responses)
+        except StopIteration:
+            raise KeyboardInterrupt from None
+
+    run_lobby(console=console, reader=reader)
+
+    output = stream.getvalue()
+    assert "See you at the table." in output
+    assert "Game cancelled." not in output

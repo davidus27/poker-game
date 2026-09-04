@@ -156,7 +156,9 @@ def test_monte_carlo_equity_for_certain_river_results(
     board: str,
     expected: float,
 ) -> None:
-    assert monte_carlo_equity(_view(hole=hole, board=board), random.Random(7), samples=20) == expected
+    assert (
+        monte_carlo_equity(_view(hole=hole, board=board), random.Random(7), samples=20) == expected
+    )
 
 
 def test_monte_carlo_is_seeded_and_ignores_folded_seats() -> None:

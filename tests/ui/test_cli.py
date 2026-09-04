@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 from io import StringIO
 
+import pytest
 from rich.console import Console
 
 from holdem.actors import BotDifficulty
@@ -37,6 +38,7 @@ from holdem.ui.cli import (
     prompt_play_config,
 )
 from holdem.ui.cli.brand import LOGO_TITLE
+from holdem.ui.cli.interact import Cancelled
 
 
 def _console() -> tuple[Console, StringIO]:
@@ -305,6 +307,18 @@ def test_action_prompt_lists_only_legal_actions() -> None:
     assert "Call" not in output
     assert "Raise" not in output
     assert "Choose one of the listed numbers." in output
+
+
+def test_ctrl_c_at_action_prompt_cancels_the_table() -> None:
+    console, _stream = _console()
+
+    def interrupt(_prompt: str) -> str:
+        raise KeyboardInterrupt
+
+    source = RichActionSource(console=console, reader=interrupt)
+
+    with pytest.raises(Cancelled):
+        source(_view(LegalAction(ActionKind.CHECK)))
 
 
 def test_raise_prompt_retries_until_amount_is_in_legal_range() -> None:

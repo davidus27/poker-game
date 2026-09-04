@@ -114,10 +114,7 @@ def test_heuristic_bot_rejects_view_without_legal_actions() -> None:
 
 def test_heuristic_bots_can_run_a_tournament_to_a_winner() -> None:
     table = Table([40, 40, 40], small_blind=5, big_blind=10, rng=random.Random(3))
-    bots = {
-        seat: make_bot(BotDifficulty.MEDIUM, random.Random(seat))
-        for seat in range(3)
-    }
+    bots = {seat: make_bot(BotDifficulty.MEDIUM, random.Random(seat)) for seat in range(3)}
 
     decisions = 0
     hands = 0

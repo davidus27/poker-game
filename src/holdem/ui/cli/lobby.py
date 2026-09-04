@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.markup import escape
 
 from holdem.ui.cli.brand import logo_banner
+from holdem.ui.cli.interact import Cancelled, Prompter
 from holdem.ui.cli.prompts import (
     DEFAULT_DISPLAY_NAME,
     MAX_DISPLAY_NAME_LENGTH,
@@ -16,7 +17,6 @@ from holdem.ui.cli.prompts import (
     PlayConfig,
     _read_difficulty,
     _read_text,
-    _read_yes_no,
     prompt_play_config,
 )
 
@@ -64,28 +64,25 @@ def prompt_menu_option(
 ) -> MenuOption:
     """Greet the player and collect a main-menu choice."""
 
-    aliases = {"q": MenuOption.QUIT, "quit": MenuOption.QUIT}
-    choices = {option.value: option for option in MenuOption}
-
     console.print()
     console.print(logo_banner())
     console.print(f"[bold]Hi, {escape(display_name)}.[/bold]")
     console.print(f"[dim]Table: {table.summary()}[/dim]")
     console.print()
-    console.print("What would you like to do?")
-    console.print("  [cyan]1[/cyan]. New local game")
-    console.print("  [cyan]2[/cyan]. Host a table")
-    console.print("  [cyan]3[/cyan]. Join a table")
-    console.print("  [cyan]4[/cyan]. Table settings")
-    console.print("  [cyan]5[/cyan]. Change name")
-    console.print("  [cyan]6[/cyan]. Quit")
-
-    while True:
-        raw = reader("Choose: ").strip().lower()
-        selected = choices.get(raw) or aliases.get(raw)
-        if selected is not None:
-            return selected
-        console.print("[red]Choose one of the listed numbers.[/red]")
+    try:
+        return Prompter(reader=reader, console=console).select(
+            "What would you like to do?",
+            (
+                ("New local game", MenuOption.NEW_GAME),
+                ("Host a table", MenuOption.HOST),
+                ("Join a table", MenuOption.JOIN),
+                ("Table settings", MenuOption.SETTINGS),
+                ("Change name", MenuOption.NAME),
+                ("Quit", MenuOption.QUIT),
+            ),
+        )
+    except Cancelled:
+        return MenuOption.QUIT
 
 
 def prompt_change_settings(
@@ -95,15 +92,24 @@ def prompt_change_settings(
     table: PlayConfig,
     local: bool = False,
 ) -> bool:
-    """Ask whether to edit the current table settings."""
+    """Choose whether to start, edit the settings, or go back."""
 
     console.print()
     console.print(f"[dim]{table.local_summary() if local else table.summary()}[/dim]")
-    return _read_yes_no(
-        "Change these settings?",
-        reader=reader,
-        console=console,
-        default=False,
+
+    def confirmation_reader(_prompt: str) -> str:
+        answer = reader("Change these settings? [y/N]: ").strip().lower()
+        aliases = {"": "1", "n": "1", "no": "1", "y": "2", "yes": "2"}
+        return aliases.get(answer, answer)
+
+    selection_reader = reader if reader is input else confirmation_reader
+    return Prompter(reader=selection_reader, console=console).select(
+        "Ready to play?",
+        (
+            ("Start with these settings", False),
+            ("Change settings", True),
+        ),
+        allow_back=True,
     )
 
 
@@ -158,7 +164,10 @@ def prompt_join_ticket(
     if ticket:
         console.print(f"Ticket: {ticket}")
         return ticket
-    return reader("Table ticket: ").strip()
+    return Prompter(reader=reader, console=console).ask_text(
+        "Table ticket (leave empty for Back)",
+        allow_back=True,
+    )
 
 
 def wait_for_menu(*, reader: LineReader) -> None:

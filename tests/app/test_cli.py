@@ -39,6 +39,22 @@ def test_no_command_opens_lobby(monkeypatch: MonkeyPatch) -> None:
     assert called["n"] == 1
 
 
+def test_ctrl_c_uses_the_normal_goodbye(
+    monkeypatch: MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    def interrupt(**_kwargs: object) -> None:
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(cli, "run_lobby", interrupt)
+
+    cli.main([])
+
+    output = capsys.readouterr().out
+    assert "See you at the table." in output
+    assert "Game cancelled." not in output
+
+
 def test_flags_prefill_table_and_name(monkeypatch: MonkeyPatch) -> None:
     captured: dict[str, object] = {}
 
