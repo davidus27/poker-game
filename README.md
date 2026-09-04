@@ -9,8 +9,8 @@ that supports local play, bots, and peer-to-peer online sessions via
 | Phase | Description | State |
 |-------|-------------|-------|
 | 0 | Foundations – package layout, CI, tooling | ✅ done |
-| 1 | Domain + engine + tests (Table, streets, side pots) | 🔲 next |
-| 2 | Actor protocol + bots | 🔲 planned |
+| 1 | Domain + engine + tests (Table, streets, side pots) | ✅ done |
+| 2 | Actor protocol + bots | 🔲 next |
 | 3 | Rich CLI (`holdem play`) | 🔲 planned |
 | 4 | Iroh lobby (`holdem host` / `holdem join`) | 🔲 planned |
 
@@ -55,18 +55,19 @@ pytest -v tests/domain/test_hands.py   # just the hand-evaluation suite
 
 ```
 src/holdem/
-  domain/       # Card, Rank, Suit, HandRank, HandScore, hand evaluator  – no I/O
+  domain/       # cards, hands, actions, events, seat views  – no I/O
+  engine/       # Table state machine, betting, side pots, streets
   app/          # CLI composition root (Phase 3 stub)
 tests/
-  domain/       # 36 hand-evaluation tests (ported from game/tests/)
-game/           # legacy code – kept until Phase 1 replaces it
+  domain/       # hand evaluation + card codec
+  engine/       # blinds, streets, actions, pots, showdown, replay
 ```
 
 ## Architecture (target)
 
 ```
 holdem.domain   pure value types + hand evaluator
-holdem.engine   Table state machine, betting, pots, streets   (Phase 1)
+holdem.engine   Table state machine, betting, pots, streets   (done)
 holdem.actors   Actor protocol, LocalHuman, RandomBot         (Phase 2)
 holdem.ui.cli   Rich renderer + prompts                       (Phase 3)
 holdem.connectors  InMemoryConnector, IrohConnector           (Phase 4)

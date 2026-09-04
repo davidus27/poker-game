@@ -41,8 +41,6 @@ addopts = "--tb=short -q"
 [tool.ruff]
 src = ["src"]
 line-length = 100
-# game/ is legacy code kept only until Phase 1 replaces it; exclude it from CI checks.
-exclude = ["game"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "W"]

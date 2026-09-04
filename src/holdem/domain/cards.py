@@ -32,13 +32,70 @@ class Rank(IntEnum):
     ACE = 14
 
 
+_RANK_FROM_CHAR = {
+    "2": Rank.TWO,
+    "3": Rank.THREE,
+    "4": Rank.FOUR,
+    "5": Rank.FIVE,
+    "6": Rank.SIX,
+    "7": Rank.SEVEN,
+    "8": Rank.EIGHT,
+    "9": Rank.NINE,
+    "T": Rank.TEN,
+    "J": Rank.JACK,
+    "Q": Rank.QUEEN,
+    "K": Rank.KING,
+    "A": Rank.ACE,
+}
+_CHAR_FROM_RANK = {rank: char for char, rank in _RANK_FROM_CHAR.items()}
+_SUIT_FROM_CHAR = {suit.value: suit for suit in Suit}
+
+
+def parse_card(text: str) -> Card:
+    """Parse a two-character card string such as ``As`` or ``Td``.
+
+    Rank is ``A K Q J T 9-2`` (case-insensitive). Suit is ``s h d c``.
+    """
+    raw = text.strip()
+    if len(raw) != 2:
+        raise ValueError(f"invalid card: {text!r}")
+    rank_ch, suit_ch = raw[0].upper(), raw[1].lower()
+    rank = _RANK_FROM_CHAR.get(rank_ch)
+    suit = _SUIT_FROM_CHAR.get(suit_ch)
+    if rank is None or suit is None:
+        raise ValueError(f"invalid card: {text!r}")
+    return Card(rank, suit)
+
+
+def format_card(card: Card) -> str:
+    """Encode a card as a two-character string such as ``As``."""
+    return f"{_CHAR_FROM_RANK[card.rank]}{card.suit.value}"
+
+
+def parse_cards(text: str) -> tuple[Card, ...]:
+    """Parse a space-separated sequence of card strings."""
+    parts = text.split()
+    if not parts:
+        return ()
+    return tuple(parse_card(part) for part in parts)
+
+
+def format_cards(cards: list[Card] | tuple[Card, ...]) -> str:
+    """Encode cards as a space-separated string."""
+    return " ".join(format_card(card) for card in cards)
+
+
 @dataclass(frozen=True)
 class Card:
     rank: Rank
     suit: Suit
 
     def __str__(self) -> str:
-        return f"{self.rank.value}{self.suit.value}"
+        return format_card(self)
+
+    @staticmethod
+    def from_str(text: str) -> Card:
+        return parse_card(text)
 
 
 class HandRank(IntEnum):
