@@ -1,72 +1,80 @@
-# Texas Hold'em poker
-Texas Hold'em poker is easy terminal game written in Python for educational purposes.
+# holdem
 
+No-Limit Texas Hold'em written in Python. The goal is a correct, testable engine
+that supports local play, bots, and peer-to-peer online sessions via
+[Iroh](https://iroh.computer/).
 
-## Table of contents
-* [Introduction](#Introduction)
-* [Installation](#Installation)
-* [Rules](#Rules)
-* [Testing](#Testing)
-* [TODO list](#TODO)
-* [License](#License)
+## Status
 
+| Phase | Description | State |
+|-------|-------------|-------|
+| 0 | Foundations – package layout, CI, tooling | ✅ done |
+| 1 | Domain + engine + tests (Table, streets, side pots) | 🔲 next |
+| 2 | Actor protocol + bots | 🔲 planned |
+| 3 | Rich CLI (`holdem play`) | 🔲 planned |
+| 4 | Iroh lobby (`holdem host` / `holdem join`) | 🔲 planned |
 
-## Introduction
-Simple Poker game you can play in terminal or cmd prompt. 
+See [`holdem_rebuild_plan.md`](.cursor/plans/holdem_rebuild_plan_589543f9.plan.md) for the full design.
+
+## Requirements
+
+* Python ≥ 3.11
+* [pip](https://pip.pypa.io/)
 
 ## Installation
-Program is written ins Python 3.x. 
-Here is the easy process to download and play the game
 
-```
-$git clone https://github.com/davidus27/pokerGame
-$cd pokerGame/game
-$python3 main.py
+```bash
+git clone <repo-url>
+cd poker-game
+pip install -e ".[dev]"   # installs runtime + dev tools
 ```
 
-### Linux 
-For easier playing in terminal you just need to give the script permissions to execute:
-```
-$cd pokerGame
-$chmod +x game/main.py
-```
-now you can create alias in your __.bashrc__ file 
+## Usage
 
-```
-alias name='path-to-the-program/pokerGame/game/main.py'
+```text
+holdem   # CLI not yet implemented (Phase 3)
 ```
 
-### Windows
-If you are using Windows and want the .exe file you just need to install requirements
-``$pip3 install -r requirements.txt``
-and create executable file 
+## Development
 
-``$pyinstaller game/main.py``
- 
+```bash
+make test        # run pytest with coverage
+make lint        # ruff check + format
+make typecheck   # mypy strict
+make install     # pip install -e ".[dev]"
+```
 
+### Running tests directly
 
-## Rules
-It is very easy to play. 
-After the start the game will ask questions for creation of your character.
-On the first round your balance (money) and cards should be on the screen and you can play the game 
-by navigating through the numbers.
+```bash
+pytest           # uses settings from pyproject.toml
+pytest -v tests/domain/test_hands.py   # just the hand-evaluation suite
+```
 
-## Testing
-TODO
+## Project layout
 
-## TODO
+```
+src/holdem/
+  domain/       # Card, Rank, Suit, HandRank, HandScore, hand evaluator  – no I/O
+  app/          # CLI composition root (Phase 3 stub)
+tests/
+  domain/       # 36 hand-evaluation tests (ported from game/tests/)
+game/           # legacy code – kept until Phase 1 replaces it
+```
 
-- [x] Beta version of the game released
-- [x] Refactoring the codebase
-- [x] Working detection system of the hand values of individual players
-- [x] Ante binding for begining of the game
-- [x] Basic bots playing against the player
-- [ ] Unit testing
-- [ ] More advanced bots calculating strategy
-- [ ] Fixing wrong calculations of high cards
-- [ ] Changing order of players each round
-- [ ] basic GUI options
-- [ ] saving the game progress over time
+## Architecture (target)
+
+```
+holdem.domain   pure value types + hand evaluator
+holdem.engine   Table state machine, betting, pots, streets   (Phase 1)
+holdem.actors   Actor protocol, LocalHuman, RandomBot         (Phase 2)
+holdem.ui.cli   Rich renderer + prompts                       (Phase 3)
+holdem.connectors  InMemoryConnector, IrohConnector           (Phase 4)
+holdem.app      play / host / join entry points               (Phase 3-4)
+```
+
+One rule: **the engine never touches I/O**. Bots, CLI, and Iroh are adapters.
 
 ## License
-This project is licensed under the GNU General Public License - see the [LICENSE](LICENSE) file for details.
+
+GNU General Public License v3.0 – see [LICENSE](LICENSE).

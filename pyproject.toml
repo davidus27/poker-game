@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "holdem"
+version = "0.1.0"
+description = "No-Limit Texas Hold'em – pure engine, CLI, and online lobby via Iroh"
+readme = "README.md"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "Dave", email = "davidus27@gmail.com" }]
+requires-python = ">=3.11"
+dependencies = ["rich>=13"]
+
+[project.optional-dependencies]
+network = ["iroh>=1"]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+holdem = "holdem.app.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "--tb=short -q"
+
+# ---------------------------------------------------------------------------
+# ruff
+# ---------------------------------------------------------------------------
+[tool.ruff]
+src = ["src"]
+line-length = 100
+# game/ is legacy code kept only until Phase 1 replaces it; exclude it from CI checks.
+exclude = ["game"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "W"]
+ignore = ["E501"]   # line length enforced by formatter, not linter
+
+[tool.ruff.lint.isort]
+known-first-party = ["holdem"]
+
+# ---------------------------------------------------------------------------
+# mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+mypy_path = "src"
+packages = ["holdem"]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
